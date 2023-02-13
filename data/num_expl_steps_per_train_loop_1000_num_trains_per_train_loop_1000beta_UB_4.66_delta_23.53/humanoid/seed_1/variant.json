@@ -1,0 +1,32 @@
+{
+  "algorithm": "SAC",
+  "algorithm_kwargs": {
+    "batch_size": 256,
+    "max_path_length": 1000,
+    "min_num_steps_before_training": 10000,
+    "num_epochs": 9000,
+    "num_eval_steps_per_epoch": 5000,
+    "num_expl_steps_per_train_loop": 1000,
+    "num_trains_per_train_loop": 1000
+  },
+  "domain": "humanoid",
+  "layer_size": 256,
+  "log_dir": "./data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1",
+  "optimistic_exp": {
+    "beta_UB": 4.66,
+    "delta": 23.53,
+    "should_use": true
+  },
+  "replay_buffer_size": 1000000,
+  "seed": 1,
+  "trainer_kwargs": {
+    "discount": 0.99,
+    "policy_lr": 0.0003,
+    "qf_lr": 0.0003,
+    "reward_scale": 1,
+    "soft_target_tau": 0.005,
+    "target_update_period": 1,
+    "use_automatic_entropy_tuning": true
+  },
+  "version": "normal"
+}

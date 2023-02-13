@@ -1,0 +1,519 @@
+2023-02-13 21:28:19.909504 CST | Logging to: ./data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1
+2023-02-13 21:28:19.991386 CST | Variant:
+2023-02-13 21:28:19.991679 CST | {
+  "algorithm": "SAC",
+  "version": "normal",
+  "layer_size": 256,
+  "replay_buffer_size": 1000000,
+  "algorithm_kwargs": {
+    "num_eval_steps_per_epoch": 5000,
+    "num_trains_per_train_loop": 1000,
+    "num_expl_steps_per_train_loop": 1000,
+    "min_num_steps_before_training": 10000,
+    "max_path_length": 1000,
+    "batch_size": 256,
+    "num_epochs": 9000
+  },
+  "trainer_kwargs": {
+    "discount": 0.99,
+    "soft_target_tau": 0.005,
+    "target_update_period": 1,
+    "policy_lr": 0.0003,
+    "qf_lr": 0.0003,
+    "reward_scale": 1,
+    "use_automatic_entropy_tuning": true
+  },
+  "optimistic_exp": {
+    "should_use": true,
+    "beta_UB": 4.66,
+    "delta": 23.53
+  },
+  "log_dir": "./data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1",
+  "seed": 1,
+  "domain": "humanoid"
+}
+2023-02-13 21:28:19.992109 CST | Seed: 1
+2023-02-13 21:28:19.992814 CST | Using GPU: True
+2023-02-13 21:28:56.790116 CST | Logging to: ./data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1
+2023-02-13 21:28:56.859579 CST | Log dir is not empty: ['debug.log', 'variant.json', 'experiment.pkl', 'progress.csv']
+2023-02-13 21:28:56.859791 CST | There is no previous experiment state available.
+                            Do not try to restore.
+2023-02-13 21:28:56.859862 CST | Variant:
+2023-02-13 21:28:56.860075 CST | {
+  "algorithm": "SAC",
+  "version": "normal",
+  "layer_size": 256,
+  "replay_buffer_size": 1000000,
+  "algorithm_kwargs": {
+    "num_eval_steps_per_epoch": 5000,
+    "num_trains_per_train_loop": 1000,
+    "num_expl_steps_per_train_loop": 1000,
+    "min_num_steps_before_training": 10000,
+    "max_path_length": 1000,
+    "batch_size": 256,
+    "num_epochs": 9000
+  },
+  "trainer_kwargs": {
+    "discount": 0.99,
+    "soft_target_tau": 0.005,
+    "target_update_period": 1,
+    "policy_lr": 0.0003,
+    "qf_lr": 0.0003,
+    "reward_scale": 1,
+    "use_automatic_entropy_tuning": true
+  },
+  "optimistic_exp": {
+    "should_use": true,
+    "beta_UB": 4.66,
+    "delta": 23.53
+  },
+  "log_dir": "./data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1",
+  "seed": 1,
+  "domain": "humanoid"
+}
+2023-02-13 21:28:56.860581 CST | Seed: 1
+2023-02-13 21:28:56.861354 CST | Using GPU: True
+2023-02-13 21:29:14.966471 CST | Epoch 0 finished
+--------------------------------------------------------  ---------------
+replay_buffer/size                                        11000
+trainer/QF1 Loss                                            248.968
+trainer/QF2 Loss                                            248.518
+trainer/Policy Loss                                         -11.3915
+trainer/Q1 Predictions Mean                                  -0.0107773
+trainer/Q1 Predictions Std                                    0.0224176
+trainer/Q1 Predictions Max                                    0.0527689
+trainer/Q1 Predictions Min                                   -0.0787764
+trainer/Q2 Predictions Mean                                   0.00329194
+trainer/Q2 Predictions Std                                    0.0365968
+trainer/Q2 Predictions Max                                    0.0903413
+trainer/Q2 Predictions Min                                   -0.0830903
+trainer/Q Targets Mean                                       15.544
+trainer/Q Targets Std                                         2.6478
+trainer/Q Targets Max                                        18.1327
+trainer/Q Targets Min                                         4.2554
+trainer/Log Pis Mean                                        -11.4151
+trainer/Log Pis Std                                           0.96032
+trainer/Log Pis Max                                          -8.09751
+trainer/Log Pis Min                                         -13.5769
+trainer/Policy mu Mean                                        0.00106987
+trainer/Policy mu Std                                         0.0168807
+trainer/Policy mu Max                                         0.0741309
+trainer/Policy mu Min                                        -0.0615573
+trainer/Policy log std Mean                                   0.0052005
+trainer/Policy log std Std                                    0.0161762
+trainer/Policy log std Max                                    0.0754248
+trainer/Policy log std Min                                   -0.0565122
+trainer/Alpha                                                 0.9997
+trainer/Alpha Loss                                           -0
+exploration/num steps total                               11000
+exploration/num paths total                                 467
+exploration/path length Mean                                 21.7391
+exploration/path length Std                                   6.36374
+exploration/path length Max                                  39
+exploration/path length Min                                   8
+exploration/Rewards Mean                                      4.83187
+exploration/Rewards Std                                       0.200925
+exploration/Rewards Max                                       5.48076
+exploration/Rewards Min                                       4.17636
+exploration/Returns Mean                                    105.041
+exploration/Returns Std                                      29.9158
+exploration/Returns Max                                     187.165
+exploration/Returns Min                                      38.5794
+exploration/Actions Mean                                     -0.00552569
+exploration/Actions Std                                       0.795014
+exploration/Actions Max                                       0.999999
+exploration/Actions Min                                      -0.999996
+exploration/Num Paths                                        46
+exploration/Average Returns                                 105.041
+exploration/env_infos/final/reward_linvel Mean                0.0775837
+exploration/env_infos/final/reward_linvel Std                 0.274847
+exploration/env_infos/final/reward_linvel Max                 0.626374
+exploration/env_infos/final/reward_linvel Min                -0.568278
+exploration/env_infos/initial/reward_linvel Mean             -0.00281394
+exploration/env_infos/initial/reward_linvel Std               0.00775411
+exploration/env_infos/initial/reward_linvel Max               0.012698
+exploration/env_infos/initial/reward_linvel Min              -0.0193772
+exploration/env_infos/reward_linvel Mean                      0.00379091
+exploration/env_infos/reward_linvel Std                       0.200629
+exploration/env_infos/reward_linvel Max                       0.626874
+exploration/env_infos/reward_linvel Min                      -0.630023
+exploration/env_infos/final/reward_quadctrl Mean             -0.174666
+exploration/env_infos/final/reward_quadctrl Std               0.0190047
+exploration/env_infos/final/reward_quadctrl Max              -0.134245
+exploration/env_infos/final/reward_quadctrl Min              -0.219051
+exploration/env_infos/initial/reward_quadctrl Mean           -0.176427
+exploration/env_infos/initial/reward_quadctrl Std             0.0165312
+exploration/env_infos/initial/reward_quadctrl Max            -0.143153
+exploration/env_infos/initial/reward_quadctrl Min            -0.209508
+exploration/env_infos/reward_quadctrl Mean                   -0.171925
+exploration/env_infos/reward_quadctrl Std                     0.0202141
+exploration/env_infos/reward_quadctrl Max                    -0.100686
+exploration/env_infos/reward_quadctrl Min                    -0.235527
+exploration/env_infos/final/reward_alive Mean                 5
+exploration/env_infos/final/reward_alive Std                  0
+exploration/env_infos/final/reward_alive Max                  5
+exploration/env_infos/final/reward_alive Min                  5
+exploration/env_infos/initial/reward_alive Mean               5
+exploration/env_infos/initial/reward_alive Std                0
+exploration/env_infos/initial/reward_alive Max                5
+exploration/env_infos/initial/reward_alive Min                5
+exploration/env_infos/reward_alive Mean                       5
+exploration/env_infos/reward_alive Std                        0
+exploration/env_infos/reward_alive Max                        5
+exploration/env_infos/reward_alive Min                        5
+exploration/env_infos/final/reward_impact Mean                0
+exploration/env_infos/final/reward_impact Std                 0
+exploration/env_infos/final/reward_impact Max                -0
+exploration/env_infos/final/reward_impact Min                -0
+exploration/env_infos/initial/reward_impact Mean              0
+exploration/env_infos/initial/reward_impact Std               0
+exploration/env_infos/initial/reward_impact Max              -0
+exploration/env_infos/initial/reward_impact Min              -0
+exploration/env_infos/reward_impact Mean                      0
+exploration/env_infos/reward_impact Std                       0
+exploration/env_infos/reward_impact Max                      -0
+exploration/env_infos/reward_impact Min                      -0
+remote_evaluation/num steps total                          4962
+remote_evaluation/num paths total                           115
+remote_evaluation/path length Mean                           43.1478
+remote_evaluation/path length Std                             0.442198
+remote_evaluation/path length Max                            44
+remote_evaluation/path length Min                            42
+remote_evaluation/Rewards Mean                                5.15736
+remote_evaluation/Rewards Std                                 0.159441
+remote_evaluation/Rewards Max                                 5.62155
+remote_evaluation/Rewards Min                                 4.97816
+remote_evaluation/Returns Mean                              222.529
+remote_evaluation/Returns Std                                 2.88381
+remote_evaluation/Returns Max                               228.92
+remote_evaluation/Returns Min                               215.302
+remote_evaluation/Actions Mean                                0.00037831
+remote_evaluation/Actions Std                                 0.00275668
+remote_evaluation/Actions Max                                 0.00872239
+remote_evaluation/Actions Min                                -0.00719999
+remote_evaluation/Num Paths                                 115
+remote_evaluation/Average Returns                           222.529
+remote_evaluation/env_infos/final/reward_linvel Mean          0.472131
+remote_evaluation/env_infos/final/reward_linvel Std           0.073579
+remote_evaluation/env_infos/final/reward_linvel Max           0.621548
+remote_evaluation/env_infos/final/reward_linvel Min           0.317436
+remote_evaluation/env_infos/initial/reward_linvel Mean       -0.000903657
+remote_evaluation/env_infos/initial/reward_linvel Std         0.00831897
+remote_evaluation/env_infos/initial/reward_linvel Max         0.0196408
+remote_evaluation/env_infos/initial/reward_linvel Min        -0.0218367
+remote_evaluation/env_infos/reward_linvel Mean                0.157358
+remote_evaluation/env_infos/reward_linvel Std                 0.159441
+remote_evaluation/env_infos/reward_linvel Max                 0.621548
+remote_evaluation/env_infos/reward_linvel Min                -0.0218367
+remote_evaluation/env_infos/final/reward_quadctrl Mean       -2.15652e-06
+remote_evaluation/env_infos/final/reward_quadctrl Std         4.53395e-08
+remote_evaluation/env_infos/final/reward_quadctrl Max        -2.0561e-06
+remote_evaluation/env_infos/final/reward_quadctrl Min        -2.313e-06
+remote_evaluation/env_infos/initial/reward_quadctrl Mean     -1.70925e-06
+remote_evaluation/env_infos/initial/reward_quadctrl Std       4.26965e-09
+remote_evaluation/env_infos/initial/reward_quadctrl Max      -1.70133e-06
+remote_evaluation/env_infos/initial/reward_quadctrl Min      -1.72075e-06
+remote_evaluation/env_infos/reward_quadctrl Mean             -2.10594e-06
+remote_evaluation/env_infos/reward_quadctrl Std               3.69036e-07
+remote_evaluation/env_infos/reward_quadctrl Max              -1.59068e-06
+remote_evaluation/env_infos/reward_quadctrl Min              -2.90086e-06
+remote_evaluation/env_infos/final/reward_alive Mean           5
+remote_evaluation/env_infos/final/reward_alive Std            0
+remote_evaluation/env_infos/final/reward_alive Max            5
+remote_evaluation/env_infos/final/reward_alive Min            5
+remote_evaluation/env_infos/initial/reward_alive Mean         5
+remote_evaluation/env_infos/initial/reward_alive Std          0
+remote_evaluation/env_infos/initial/reward_alive Max          5
+remote_evaluation/env_infos/initial/reward_alive Min          5
+remote_evaluation/env_infos/reward_alive Mean                 5
+remote_evaluation/env_infos/reward_alive Std                  0
+remote_evaluation/env_infos/reward_alive Max                  5
+remote_evaluation/env_infos/reward_alive Min                  5
+remote_evaluation/env_infos/final/reward_impact Mean          0
+remote_evaluation/env_infos/final/reward_impact Std           0
+remote_evaluation/env_infos/final/reward_impact Max          -0
+remote_evaluation/env_infos/final/reward_impact Min          -0
+remote_evaluation/env_infos/initial/reward_impact Mean        0
+remote_evaluation/env_infos/initial/reward_impact Std         0
+remote_evaluation/env_infos/initial/reward_impact Max        -0
+remote_evaluation/env_infos/initial/reward_impact Min        -0
+remote_evaluation/env_infos/reward_impact Mean                0
+remote_evaluation/env_infos/reward_impact Std                 0
+remote_evaluation/env_infos/reward_impact Max                -0
+remote_evaluation/env_infos/reward_impact Min                -0
+time/data storing (s)                                         0.00417745
+time/exploration sampling (s)                                 1.97892
+time/logging (s)                                              0.269256
+time/remote evaluation submit (s)                             0.00369059
+time/remote evaluation wait (s)                               0.000261161
+time/training (s)                                             6.69473
+time/epoch (s)                                                8.95103
+time/total (s)                                               18.8429
+Epoch                                                         0
+--------------------------------------------------------  ---------------
+2023-02-13 21:29:23.798220 CST | Epoch 1 finished
+2023-02-13 22:24:20.735601 CST | Logging to: ./data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1
+2023-02-13 22:24:20.867994 CST | Log dir is not empty: ['debug.log', 'variant.json', 'experiment.pkl', 'progress.csv']
+2023-02-13 22:24:20.868197 CST | There is no previous experiment state available.
+                            Do not try to restore.
+2023-02-13 22:24:20.868264 CST | Variant:
+2023-02-13 22:24:20.868454 CST | {
+  "algorithm": "SAC",
+  "version": "normal",
+  "layer_size": 256,
+  "replay_buffer_size": 1000000,
+  "algorithm_kwargs": {
+    "num_eval_steps_per_epoch": 5000,
+    "num_trains_per_train_loop": 1000,
+    "num_expl_steps_per_train_loop": 1000,
+    "min_num_steps_before_training": 10000,
+    "max_path_length": 1000,
+    "batch_size": 256,
+    "num_epochs": 9000
+  },
+  "trainer_kwargs": {
+    "discount": 0.99,
+    "soft_target_tau": 0.005,
+    "target_update_period": 1,
+    "policy_lr": 0.0003,
+    "qf_lr": 0.0003,
+    "reward_scale": 1,
+    "use_automatic_entropy_tuning": true
+  },
+  "optimistic_exp": {
+    "should_use": true,
+    "beta_UB": 4.66,
+    "delta": 23.53
+  },
+  "log_dir": "./data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1",
+  "seed": 1,
+  "domain": "humanoid"
+}
+2023-02-13 22:24:20.869061 CST | Seed: 1
+2023-02-13 22:24:20.869698 CST | Using GPU: True
+2023-02-13 22:24:38.481593 CST | Epoch 0 finished
+--------------------------------------------------------  ---------------
+replay_buffer/size                                        11000
+trainer/QF1 Loss                                            248.968
+trainer/QF2 Loss                                            248.518
+trainer/Policy Loss                                         -11.3915
+trainer/Q1 Predictions Mean                                  -0.0107773
+trainer/Q1 Predictions Std                                    0.0224176
+trainer/Q1 Predictions Max                                    0.0527689
+trainer/Q1 Predictions Min                                   -0.0787764
+trainer/Q2 Predictions Mean                                   0.00329194
+trainer/Q2 Predictions Std                                    0.0365968
+trainer/Q2 Predictions Max                                    0.0903413
+trainer/Q2 Predictions Min                                   -0.0830903
+trainer/Q Targets Mean                                       15.544
+trainer/Q Targets Std                                         2.6478
+trainer/Q Targets Max                                        18.1327
+trainer/Q Targets Min                                         4.2554
+trainer/Log Pis Mean                                        -11.4151
+trainer/Log Pis Std                                           0.96032
+trainer/Log Pis Max                                          -8.09751
+trainer/Log Pis Min                                         -13.5769
+trainer/Policy mu Mean                                        0.00106987
+trainer/Policy mu Std                                         0.0168807
+trainer/Policy mu Max                                         0.0741309
+trainer/Policy mu Min                                        -0.0615573
+trainer/Policy log std Mean                                   0.0052005
+trainer/Policy log std Std                                    0.0161762
+trainer/Policy log std Max                                    0.0754248
+trainer/Policy log std Min                                   -0.0565122
+trainer/Alpha                                                 0.9997
+trainer/Alpha Loss                                           -0
+exploration/num steps total                               11000
+exploration/num paths total                                 467
+exploration/path length Mean                                 21.7391
+exploration/path length Std                                   6.36374
+exploration/path length Max                                  39
+exploration/path length Min                                   8
+exploration/Rewards Mean                                      4.83187
+exploration/Rewards Std                                       0.200925
+exploration/Rewards Max                                       5.48076
+exploration/Rewards Min                                       4.17636
+exploration/Returns Mean                                    105.041
+exploration/Returns Std                                      29.9158
+exploration/Returns Max                                     187.165
+exploration/Returns Min                                      38.5794
+exploration/Actions Mean                                     -0.00552569
+exploration/Actions Std                                       0.795014
+exploration/Actions Max                                       0.999999
+exploration/Actions Min                                      -0.999996
+exploration/Num Paths                                        46
+exploration/Average Returns                                 105.041
+exploration/env_infos/final/reward_linvel Mean                0.0775837
+exploration/env_infos/final/reward_linvel Std                 0.274847
+exploration/env_infos/final/reward_linvel Max                 0.626374
+exploration/env_infos/final/reward_linvel Min                -0.568278
+exploration/env_infos/initial/reward_linvel Mean             -0.00281394
+exploration/env_infos/initial/reward_linvel Std               0.00775411
+exploration/env_infos/initial/reward_linvel Max               0.012698
+exploration/env_infos/initial/reward_linvel Min              -0.0193772
+exploration/env_infos/reward_linvel Mean                      0.00379091
+exploration/env_infos/reward_linvel Std                       0.200629
+exploration/env_infos/reward_linvel Max                       0.626874
+exploration/env_infos/reward_linvel Min                      -0.630023
+exploration/env_infos/final/reward_quadctrl Mean             -0.174666
+exploration/env_infos/final/reward_quadctrl Std               0.0190047
+exploration/env_infos/final/reward_quadctrl Max              -0.134245
+exploration/env_infos/final/reward_quadctrl Min              -0.219051
+exploration/env_infos/initial/reward_quadctrl Mean           -0.176427
+exploration/env_infos/initial/reward_quadctrl Std             0.0165312
+exploration/env_infos/initial/reward_quadctrl Max            -0.143153
+exploration/env_infos/initial/reward_quadctrl Min            -0.209508
+exploration/env_infos/reward_quadctrl Mean                   -0.171925
+exploration/env_infos/reward_quadctrl Std                     0.0202141
+exploration/env_infos/reward_quadctrl Max                    -0.100686
+exploration/env_infos/reward_quadctrl Min                    -0.235527
+exploration/env_infos/final/reward_alive Mean                 5
+exploration/env_infos/final/reward_alive Std                  0
+exploration/env_infos/final/reward_alive Max                  5
+exploration/env_infos/final/reward_alive Min                  5
+exploration/env_infos/initial/reward_alive Mean               5
+exploration/env_infos/initial/reward_alive Std                0
+exploration/env_infos/initial/reward_alive Max                5
+exploration/env_infos/initial/reward_alive Min                5
+exploration/env_infos/reward_alive Mean                       5
+exploration/env_infos/reward_alive Std                        0
+exploration/env_infos/reward_alive Max                        5
+exploration/env_infos/reward_alive Min                        5
+exploration/env_infos/final/reward_impact Mean                0
+exploration/env_infos/final/reward_impact Std                 0
+exploration/env_infos/final/reward_impact Max                -0
+exploration/env_infos/final/reward_impact Min                -0
+exploration/env_infos/initial/reward_impact Mean              0
+exploration/env_infos/initial/reward_impact Std               0
+exploration/env_infos/initial/reward_impact Max              -0
+exploration/env_infos/initial/reward_impact Min              -0
+exploration/env_infos/reward_impact Mean                      0
+exploration/env_infos/reward_impact Std                       0
+exploration/env_infos/reward_impact Max                      -0
+exploration/env_infos/reward_impact Min                      -0
+remote_evaluation/num steps total                          4962
+remote_evaluation/num paths total                           115
+remote_evaluation/path length Mean                           43.1478
+remote_evaluation/path length Std                             0.442198
+remote_evaluation/path length Max                            44
+remote_evaluation/path length Min                            42
+remote_evaluation/Rewards Mean                                5.15736
+remote_evaluation/Rewards Std                                 0.159441
+remote_evaluation/Rewards Max                                 5.62155
+remote_evaluation/Rewards Min                                 4.97816
+remote_evaluation/Returns Mean                              222.529
+remote_evaluation/Returns Std                                 2.88381
+remote_evaluation/Returns Max                               228.92
+remote_evaluation/Returns Min                               215.302
+remote_evaluation/Actions Mean                                0.00037831
+remote_evaluation/Actions Std                                 0.00275668
+remote_evaluation/Actions Max                                 0.00872239
+remote_evaluation/Actions Min                                -0.00719999
+remote_evaluation/Num Paths                                 115
+remote_evaluation/Average Returns                           222.529
+remote_evaluation/env_infos/final/reward_linvel Mean          0.472131
+remote_evaluation/env_infos/final/reward_linvel Std           0.073579
+remote_evaluation/env_infos/final/reward_linvel Max           0.621548
+remote_evaluation/env_infos/final/reward_linvel Min           0.317436
+remote_evaluation/env_infos/initial/reward_linvel Mean       -0.000903657
+remote_evaluation/env_infos/initial/reward_linvel Std         0.00831897
+remote_evaluation/env_infos/initial/reward_linvel Max         0.0196408
+remote_evaluation/env_infos/initial/reward_linvel Min        -0.0218367
+remote_evaluation/env_infos/reward_linvel Mean                0.157358
+remote_evaluation/env_infos/reward_linvel Std                 0.159441
+remote_evaluation/env_infos/reward_linvel Max                 0.621548
+remote_evaluation/env_infos/reward_linvel Min                -0.0218367
+remote_evaluation/env_infos/final/reward_quadctrl Mean       -2.15652e-06
+remote_evaluation/env_infos/final/reward_quadctrl Std         4.53395e-08
+remote_evaluation/env_infos/final/reward_quadctrl Max        -2.0561e-06
+remote_evaluation/env_infos/final/reward_quadctrl Min        -2.313e-06
+remote_evaluation/env_infos/initial/reward_quadctrl Mean     -1.70925e-06
+remote_evaluation/env_infos/initial/reward_quadctrl Std       4.26965e-09
+remote_evaluation/env_infos/initial/reward_quadctrl Max      -1.70133e-06
+remote_evaluation/env_infos/initial/reward_quadctrl Min      -1.72075e-06
+remote_evaluation/env_infos/reward_quadctrl Mean             -2.10594e-06
+remote_evaluation/env_infos/reward_quadctrl Std               3.69036e-07
+remote_evaluation/env_infos/reward_quadctrl Max              -1.59068e-06
+remote_evaluation/env_infos/reward_quadctrl Min              -2.90086e-06
+remote_evaluation/env_infos/final/reward_alive Mean           5
+remote_evaluation/env_infos/final/reward_alive Std            0
+remote_evaluation/env_infos/final/reward_alive Max            5
+remote_evaluation/env_infos/final/reward_alive Min            5
+remote_evaluation/env_infos/initial/reward_alive Mean         5
+remote_evaluation/env_infos/initial/reward_alive Std          0
+remote_evaluation/env_infos/initial/reward_alive Max          5
+remote_evaluation/env_infos/initial/reward_alive Min          5
+remote_evaluation/env_infos/reward_alive Mean                 5
+remote_evaluation/env_infos/reward_alive Std                  0
+remote_evaluation/env_infos/reward_alive Max                  5
+remote_evaluation/env_infos/reward_alive Min                  5
+remote_evaluation/env_infos/final/reward_impact Mean          0
+remote_evaluation/env_infos/final/reward_impact Std           0
+remote_evaluation/env_infos/final/reward_impact Max          -0
+remote_evaluation/env_infos/final/reward_impact Min          -0
+remote_evaluation/env_infos/initial/reward_impact Mean        0
+remote_evaluation/env_infos/initial/reward_impact Std         0
+remote_evaluation/env_infos/initial/reward_impact Max        -0
+remote_evaluation/env_infos/initial/reward_impact Min        -0
+remote_evaluation/env_infos/reward_impact Mean                0
+remote_evaluation/env_infos/reward_impact Std                 0
+remote_evaluation/env_infos/reward_impact Max                -0
+remote_evaluation/env_infos/reward_impact Min                -0
+time/data storing (s)                                         0.00412633
+time/exploration sampling (s)                                 1.95743
+time/logging (s)                                              0.270807
+time/remote evaluation submit (s)                             0.00343165
+time/remote evaluation wait (s)                               0.000247309
+time/training (s)                                             6.44043
+time/epoch (s)                                                8.67647
+time/total (s)                                               18.4228
+Epoch                                                         0
+--------------------------------------------------------  ---------------
+2023-02-13 22:24:47.476116 CST | Epoch 1 finished
+2023-02-13 22:28:48.756592 CST | Logging to: ./data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1
+2023-02-13 22:28:48.892607 CST | Log dir is not empty: ['debug.log', 'variant.json', 'experiment.pkl', 'progress.csv']
+2023-02-13 22:28:48.892818 CST | There is no previous experiment state available.
+                            Do not try to restore.
+2023-02-13 22:28:48.892886 CST | Variant:
+2023-02-13 22:28:48.893077 CST | {
+  "algorithm": "SAC",
+  "version": "normal",
+  "layer_size": 256,
+  "replay_buffer_size": 1000000,
+  "algorithm_kwargs": {
+    "num_eval_steps_per_epoch": 5000,
+    "num_trains_per_train_loop": 1000,
+    "num_expl_steps_per_train_loop": 1000,
+    "min_num_steps_before_training": 10000,
+    "max_path_length": 1000,
+    "batch_size": 256,
+    "num_epochs": 9000
+  },
+  "trainer_kwargs": {
+    "discount": 0.99,
+    "soft_target_tau": 0.005,
+    "target_update_period": 1,
+    "policy_lr": 0.0003,
+    "qf_lr": 0.0003,
+    "reward_scale": 1,
+    "use_automatic_entropy_tuning": true
+  },
+  "optimistic_exp": {
+    "should_use": true,
+    "beta_UB": 4.66,
+    "delta": 23.53
+  },
+  "log_dir": "./data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1",
+  "seed": 1,
+  "domain": "humanoid"
+}
+2023-02-13 22:28:48.893534 CST | Seed: 1
+2023-02-13 22:28:48.894193 CST | Using GPU: True
+2023-02-13 22:29:09.348404 CST | Logging to: ./data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1
+2023-02-13 22:29:09.471169 CST | Log dir is not empty: ['debug.log', 'variant.json', 'experiment.pkl', 'progress.csv']
+2023-02-13 22:29:09.471312 CST | Previous experimental setting is not
+                        the same as the current experimental setting.
+                        Very risky to try to reload the previous state.
+                        Exitting
+2023-02-13 22:29:09.471403 CST | Previous: {'run_experiment_here_kwargs': {'variant': {'algorithm': 'SAC', 'version': 'normal', 'layer_size': 256, 'replay_buffer_size': 1000000, 'algorithm_kwargs': {'num_eval_steps_per_epoch': 5000, 'num_trains_per_train_loop': 1000, 'num_expl_steps_per_train_loop': 1000, 'min_num_steps_before_training': 10000, 'max_path_length': 1000, 'batch_size': 256, 'num_epochs': 9000}, 'trainer_kwargs': {'discount': 0.99, 'soft_target_tau': 0.005, 'target_update_period': 1, 'policy_lr': 0.0003, 'qf_lr': 0.0003, 'reward_scale': 1, 'use_automatic_entropy_tuning': True}, 'optimistic_exp': {'should_use': True, 'beta_UB': 4.66, 'delta': 23.53}, 'log_dir': './data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1', 'seed': 1, 'domain': 'humanoid'}, 'seed': 1, 'use_gpu': True, 'snapshot_mode': 'last_every_gap', 'snapshot_gap': 100, 'git_infos': []}}
+2023-02-13 22:29:09.471484 CST | Current: {'run_experiment_here_kwargs': {'variant': {'algorithm': 'SAC', 'version': 'normal', 'layer_size': 256, 'replay_buffer_size': 1000000, 'algorithm_kwargs': {'num_eval_steps_per_epoch': 5000, 'num_trains_per_train_loop': 1000, 'num_expl_steps_per_train_loop': 1000, 'min_num_steps_before_training': 10000, 'max_path_length': 1000, 'batch_size': 256, 'num_epochs': 9000}, 'trainer_kwargs': {'discount': 0.99, 'soft_target_tau': 0.005, 'target_update_period': 1, 'policy_lr': 0.0003, 'qf_lr': 0.0003, 'reward_scale': 1, 'use_automatic_entropy_tuning': True}, 'optimistic_exp': {'should_use': True, 'beta_UB': 4.66, 'delta': 23.53}, 'log_dir': './data/./num_expl_steps_per_train_loop_1000_num_trains_per_train_loop_1000beta_UB_4.66_delta_23.53/humanoid/seed_1', 'seed': 1, 'domain': 'humanoid'}, 'seed': 1, 'use_gpu': False, 'snapshot_mode': 'last_every_gap', 'snapshot_gap': 100, 'git_infos': []}}
