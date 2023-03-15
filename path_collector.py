@@ -1,3 +1,4 @@
+import ray
 from collections import deque, OrderedDict
 import torch
 
@@ -5,7 +6,7 @@ from utils.env_utils import env_producer
 from utils.eval_util import create_stats_ordered_dict
 from utils.rng import get_global_pkg_rng_state, set_global_pkg_rng_state
 import numpy as np
-import ray
+
 from optimistic_exploration import get_optimistic_exploration_action
 
 
@@ -38,7 +39,8 @@ class MdpPathCollector(object):
             num_steps,
             discard_incomplete_paths,
             optimistic_exploration=False,
-            optimistic_exploration_kwargs={}
+            optimistic_exploration_kwargs={},
+            algo='sac'
     ):
         paths = []
         num_steps_collected = 0
@@ -47,12 +49,14 @@ class MdpPathCollector(object):
                 max_path_length,
                 num_steps - num_steps_collected,
             )
+
             path = rollout(
                 self._env,
                 policy,
                 max_path_length=max_path_length_this_loop,
                 optimistic_exploration=optimistic_exploration,
-                optimistic_exploration_kwargs=optimistic_exploration_kwargs
+                optimistic_exploration_kwargs=optimistic_exploration_kwargs,
+                algo=algo
             )
             path_len = len(path['actions'])
             if (
@@ -92,24 +96,6 @@ class MdpPathCollector(object):
         ))
         return stats
 
-    def get_snapshot(self):
-        return dict(
-            env_mj_state=self._env.sim.get_state(),
-            env_rng=self._env.np_random.get_state(),
-
-            _epoch_paths=self._epoch_paths,
-            _num_steps_total=self._num_steps_total,
-            _num_paths_total=self._num_paths_total
-        )
-
-    def restore_from_snapshot(self, ss):
-
-        self._env.sim.set_state(ss['env_mj_state'])
-        self._env.np_random.set_state(ss['env_rng'])
-
-        self._epoch_paths = ss['_epoch_paths']
-        self._num_steps_total = ss['_num_steps_total']
-        self._num_paths_total = ss['_num_paths_total']
 
 
 @ray.remote(num_cpus=1)
@@ -145,14 +131,12 @@ class RemoteMdpPathCollector(MdpPathCollector):
         if deterministic_pol:
             policy = self._policy_producer(deterministic=True)
             policy.stochastic_policy.load_state_dict(pol_state_dict)
-
         else:
+            from collections import OrderedDict
             policy = self._policy_producer()
             policy.load_state_dict(pol_state_dict)
 
-        self.collect_new_paths(policy,
-                               max_path_length, num_steps,
-                               discard_incomplete_paths)
+        self.collect_new_paths(policy, max_path_length, num_steps, discard_incomplete_paths)
 
     def get_global_pkg_rng_state(self):
         return get_global_pkg_rng_state()
@@ -169,6 +153,7 @@ def rollout(
         render_kwargs=None,
         optimistic_exploration=False,
         optimistic_exploration_kwargs={},
+        algo='sac'
 ):
     """
     The following value for the following keys will be a 2D array, with the
@@ -200,11 +185,18 @@ def rollout(
         env.render(**render_kwargs)
     while path_length < max_path_length:
 
-        if not optimistic_exploration:
+        # if not optimistic_exploration:
+        #     a, agent_info = agent.get_action(o)
+        # else:
+        #     a, agent_info = get_optimistic_exploration_action(
+        #         o, **optimistic_exploration_kwargs)
+        if algo=='sac':
             a, agent_info = agent.get_action(o)
-        else:
+        elif algo=='oac':
             a, agent_info = get_optimistic_exploration_action(
-                o, **optimistic_exploration_kwargs)
+                        o, **optimistic_exploration_kwargs)
+        else:
+            a, agent_info = agent.get_action(o)
 
         next_o, r, d, env_info = env.step(a)
         observations.append(o)
@@ -242,3 +234,4 @@ def rollout(
         agent_infos=agent_infos,
         env_infos=env_infos,
     )
+

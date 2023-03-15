@@ -49,13 +49,13 @@ device = None
 _gpu_id = 0
 
 
-def set_gpu_mode(mode, gpu_id=0):
+def set_gpu_mode(use_gpu, seed):
     global _use_gpu
     global device
     global _gpu_id
-    _gpu_id = gpu_id
-    _use_gpu = mode
-    device = torch.device("cuda:" + str(gpu_id) if _use_gpu else "cpu")
+    _gpu_id = int(seed % torch.cuda.device_count())
+    _use_gpu = use_gpu
+    device = torch.device("cuda:" + str(_gpu_id) if use_gpu else "cpu")
 
 
 def gpu_enabled():
@@ -128,11 +128,11 @@ CPU wrappers
 
 def state_dict_cpu(network):
 
-    pol_state_dict = network.state_dict()
+    pol_state_dict = network.cpu().state_dict()
 
-    for k, v in pol_state_dict.items():
-
-        # Returns a copy of v in CPU memory.
-        pol_state_dict[k] = v.cpu()
-
+    # for k, v in pol_state_dict.items():
+    #
+    #     # Returns a copy of v in CPU memory.
+    #     pol_state_dict[k] = v.cpu()
+    network.to(device)
     return pol_state_dict

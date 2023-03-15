@@ -153,9 +153,7 @@ def domain_to_epoch(name):
 
 
 def env_producer(domain, seed):
-
     env = domain_to_env(domain)()
     env.seed(seed)
     env = NormalizedBoxEnv(env)
-
     return env

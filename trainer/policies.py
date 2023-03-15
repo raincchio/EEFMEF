@@ -1,9 +1,8 @@
 import numpy as np
-import torch
 from torch import nn as nn
 
 from utils.core import eval_np
-from networks import Mlp
+from model.networks import Mlp
 
 
 import torch

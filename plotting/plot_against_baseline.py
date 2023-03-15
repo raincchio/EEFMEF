@@ -14,21 +14,12 @@ from utils.env_utils import domain_to_epoch
 plt.rcParams['font.size'] = '12'
 
 
-def get_one_domain_one_run_res(domain, seed, hyper_params):
+def get_one_domain_one_run_res(algo, domain, seed):
 
-    args = get_cmd_args()
 
-    args.base_log_dir = RLKIT_BASE_LOG_DIR
-    args.domain = domain
-    args.seed = seed
 
-    for k, v in hyper_params.items():
-        setattr(args, k, v)
-
-    res_path = get_log_dir(args)
-
-    csv_path = osp.join(
-        res_path, 'progress.csv'
+    csv_path = osp.join('./data',
+        algo, domain, "seed_"+str(seed), 'progress.csv'
     )
 
     values = []
@@ -42,7 +33,7 @@ def get_one_domain_one_run_res(domain, seed, hyper_params):
         # Not sure why the csv file is missing one col header
         # epoch_col_idx = col_names.index('Epoch')
         epoch_col_idx = -1
-        val_col_idx = col_names.index('remote_evaluation/Average Returns')
+        val_col_idx = col_names.index('exploration/Average Returns')
 
         for row in reader:
 
@@ -75,13 +66,16 @@ def get_one_domain_one_run_res(domain, seed, hyper_params):
     return values
 
 
-def get_one_domain_all_run_res(domain, run_idxes, hyper_params):
+def get_one_domain_all_run_res(algo, domain, seeds):
 
     results = []
 
-    for idx in run_idxes:
-        res = get_one_domain_one_run_res(domain, idx, hyper_params)
-        results.append(res)
+    for seed in seeds:
+        try:
+            res = get_one_domain_one_run_res(algo, domain, seed)
+            results.append(res)
+        except:
+            continue
 
     min_rows = min([len(col) for col in results])
     results = [col[0:min_rows] for col in results]
@@ -123,108 +117,24 @@ def plot(values, label, color=[0, 0, 1, 1]):
 
 
 # DOMAINS = ['humanoid', 'halfcheetah', 'hopper', 'ant', 'walker2d']
-DOMAINS = ['humanoid']
+DOMAINS = ['halfcheetah']
 
-RLKIT_BASE_LOG_DIR_BASELINE = RLKIT_BASE_LOG_DIR_ALGO = './data'
-
-RUN_IDXES = list([i for i in range(5)])
-NUM_RUN = len(RUN_IDXES)
+seeds = [1,2]
 
 
-SAC_ONE_RETRAINING_PARAMS = dict(
-    delta=0.0,
-    beta_UB=0.0,
-    num_expl_steps_per_train_loop=1000,
-    num_trains_per_train_loop=1000
-)
 
-
-SAVE_FIG = True
-
-print('SAVE_FIG', SAVE_FIG)
-
-FORMAL_FIG = True
-
-print('FORMAL_FIG', FORMAL_FIG)
-
-
-def sac_get_one_domain_one_run_res(path, domain, seed):
-
-    csv_path = osp.join(
-        path, domain, f'seed_{seed}', 'progress.csv'
-    )
-
-    result = pd.read_csv(csv_path, usecols=[
-        'remote_evaluation/Average Returns'])
-
-    return result.values
-
-
-def sac_plot_one_retraining_step(domain):
-
-    args = get_cmd_args()
-
-    set_attr_with_dict(args, SAC_ONE_RETRAINING_PARAMS)
-
-    results = get_one_domain_all_run_res(
-        domain, RUN_IDXES, SAC_ONE_RETRAINING_PARAMS)
-    results = smooth_results(results)
-
-    if FORMAL_FIG:
-        label = 'Soft Actor Critic'
-    else:
-        label = 'SAC'
-
-    plot(results, label=label)
-
-
-def sac_plot(domain, num_trains_per_train_loop):
-
-    if num_trains_per_train_loop == 1000:
-        sac_plot_one_retraining_step(domain)
-
-    elif num_trains_per_train_loop == 4000:
-        sac_plot_four_retraining_step(domain)
-
-    else:
-        exit('Unrecognized environment setting')
-
-
-def get_plot_title(args):
-
-    if FORMAL_FIG:
-        title = args.env
-
-    else:
-
-        title = '\n'.join([
-            args.env,
-            f'num_run: {NUM_RUN}', '---'
-
-            f'beta_UB: {args.beta_UB}',
-            f'delta: {args.delta}',
-            f'train/env step ratio: {int(args.num_trains_per_train_loop / args.num_expl_steps_per_train_loop)}'
-        ])
-
-    return title
-
-
-all_hyper_params_dict = [
-    dict(
-        delta=23.53,
-        beta_UB=4.66,
-        num_expl_steps_per_train_loop=1000,
-        num_trains_per_train_loop=1000
-    ),
-]
-
-
-def set_attr_with_dict(target, source_dict):
-
-    for k, v in source_dict.items():
-        setattr(target, k, v)
-
-    return target
+# def sac_get_one_domain_one_run_res(path, domain, seed):
+#
+#     csv_path = osp.join(
+#         path, domain, f'seed_{seed}', 'progress.csv'
+#     )
+#
+#     result = pd.read_csv(csv_path, usecols=[
+#         'exploration/Average Returns'])
+#
+#     return result.values
+#tood
+# num_trains_per_train_loop == 4000:
 
 
 def get_tick_space(domain):
@@ -236,96 +146,62 @@ def get_tick_space(domain):
         return 1000
 
     return 500
+COLORS = [ "#ccb974", '#8172b2', '#c44e52','#55a868','#4c72b0']
+for domain in DOMAINS:
+    plt.clf()
+    env = f'{domain}-v2'
 
+    for algo in ("oac", "sac"):
 
-for hyper_params in all_hyper_params_dict:
-
-    for domain in DOMAINS:
-
-        plt.clf()
-
-        """
-        Set up
-        """
-        # We need to do this so that jupyter notebook
-        # works with argparse
-        import sys
-        sys.argv = ['']
-        del sys
-
-        args = get_cmd_args()
-
-        set_attr_with_dict(args, hyper_params)
-
-        args.env = f'{domain}-v2'
-
-        relative_log_dir = get_log_dir(
-            args, should_include_base_log_dir=False, should_include_seed=False, should_include_domain=False)
-
-        graph_base_path = osp.join(
-            RLKIT_BASE_LOG_DIR_ALGO, 'plot', relative_log_dir)
-
-        os.makedirs(graph_base_path, exist_ok=True)
-
-        """
-        Obtain Result
-        """
-        RLKIT_BASE_LOG_DIR = RLKIT_BASE_LOG_DIR_ALGO
-
-        results = get_one_domain_all_run_res(domain, RUN_IDXES, hyper_params)
+        results = get_one_domain_all_run_res(algo, domain, seeds)
         results = smooth_results(results)
 
-        if domain == 'humanoid' and FORMAL_FIG:
-            mean = np.mean(results, axis=1)
-            x_vals = np.arange(len(mean))
+        mean = np.mean(results, axis=1)
+        std = np.std(results, axis=1)
 
-            # This is the index where OAC has
-            # the same performance as SAC with 10 million steps
-            # Plus 200 so that we are not overstating our claim
-            magic_idx = np.argmax(mean > 8000) + 300
+        x_vals = np.arange(len(mean))
+        color = COLORS.pop(0)
 
-            plt.plot(8000 * np.ones(magic_idx), linestyle='--',
-                     color=[0, 0, 1, 1], linewidth=3, label='Soft Actor Critic 10 million steps performance')
-            plt.vlines(x=magic_idx,
-                       ymin=0, ymax=8000, linestyle='--',
-                       color=[0, 0, 1, 1],)
+        plt.plot(x_vals, mean, label=algo, color=color)
+        plt.fill_between(x_vals, mean - std, mean + std, color=color, alpha=0.1)
+
+
+        # if domain == 'humanoid' and FORMAL_FIG:
+        #     mean = np.mean(results, axis=1)
+        #     x_vals = np.arange(len(mean))
+        #
+        #     # This is the index where OAC has
+        #     # the same performance as SAC with 10 million steps
+        #     # Plus 200 so that we are not overstating our claim
+        #     magic_idx = np.argmax(mean > 8000) + 300
+        #
+        #     plt.plot(8000 * np.ones(magic_idx), linestyle='--',
+        #              color=[0, 0, 1, 1], linewidth=3, label='Soft Actor Critic 10 million steps performance')
+        #     plt.vlines(x=magic_idx,
+        #                ymin=0, ymax=8000, linestyle='--',
+        #                color=[0, 0, 1, 1],)
 
         """
         Plot result
         """
 
-        plot(results, label='Optimistic Actor Critic',
-             color=[1.0, 0.0, 0.0, 1.0])
 
-        RLKIT_BASE_LOG_DIR = RLKIT_BASE_LOG_DIR_BASELINE
+    plt.title('performance compare on '+ env)
 
-        sac_plot(domain, args.num_trains_per_train_loop)
+    plt.ylabel('Average Episode Return')
 
-        plt.title(get_plot_title(args))
+    xticks = np.arange(0, domain_to_epoch(
+        domain) + 1, get_tick_space(domain))
 
-        plt.ylabel('Average Episode Return')
+    plt.xticks(xticks, xticks / 1000.0)
 
-        xticks = np.arange(0, domain_to_epoch(
-            domain) + 1, get_tick_space(domain))
+    plt.xlabel('Number of environment steps in millions')
+    plt.legend()
 
-        plt.xticks(xticks, xticks / 1000.0)
+    plt.show()
+    # plot_path = './data/plot'
+    # os.makedirs(plot_path, exist_ok=True)
 
-        plt.xlabel('Number of environment steps in millions')
-        plt.legend()
-
-        if not SAVE_FIG:
-            plt.show()
-
-        else:
-
-            fig_path = osp.join(
-                graph_base_path, f'{args.env}_formal_fig_{FORMAL_FIG}.png')
-
-            plt.savefig(fig_path, bbox_inches='tight')
-
-            print(f'Saved fig at {fig_path}')
-
-    print('Finish plotting for: ', hyper_params)
 
 
 # %%
