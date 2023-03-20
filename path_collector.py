@@ -4,10 +4,13 @@ import torch
 
 from utils.env_utils import env_producer
 from utils.eval_util import create_stats_ordered_dict
-from utils.rng import get_global_pkg_rng_state, set_global_pkg_rng_state
+# from utils.rng import get_global_pkg_rng_state, set_global_pkg_rng_state
 import numpy as np
 
-from optimistic_exploration import get_optimistic_exploration_action
+from exploration.optimistic import get_optimistic_exploration_action
+from exploration.greedy import get_greedy_exploration_action
+from exploration.greedy_bothq import get_bothq_exploration_action
+from exploration.greedy_oneq import get_oneq_exploration_action
 
 
 class MdpPathCollector(object):
@@ -38,8 +41,7 @@ class MdpPathCollector(object):
             max_path_length,
             num_steps,
             discard_incomplete_paths,
-            optimistic_exploration=False,
-            optimistic_exploration_kwargs={},
+            exploration_kwargs={},
             algo='sac'
     ):
         paths = []
@@ -54,8 +56,7 @@ class MdpPathCollector(object):
                 self._env,
                 policy,
                 max_path_length=max_path_length_this_loop,
-                optimistic_exploration=optimistic_exploration,
-                optimistic_exploration_kwargs=optimistic_exploration_kwargs,
+                exploration_kwargs=exploration_kwargs,
                 algo=algo
             )
             path_len = len(path['actions'])
@@ -138,12 +139,6 @@ class RemoteMdpPathCollector(MdpPathCollector):
 
         self.collect_new_paths(policy, max_path_length, num_steps, discard_incomplete_paths)
 
-    def get_global_pkg_rng_state(self):
-        return get_global_pkg_rng_state()
-
-    def set_global_pkg_rng_state(self, state):
-        set_global_pkg_rng_state(state)
-
 
 def rollout(
         env,
@@ -151,8 +146,7 @@ def rollout(
         max_path_length=np.inf,
         render=False,
         render_kwargs=None,
-        optimistic_exploration=False,
-        optimistic_exploration_kwargs={},
+        exploration_kwargs={},
         algo='sac'
 ):
     """
@@ -194,9 +188,11 @@ def rollout(
             a, agent_info = agent.get_action(o)
         elif algo=='oac':
             a, agent_info = get_optimistic_exploration_action(
-                        o, **optimistic_exploration_kwargs)
-        else:
-            a, agent_info = agent.get_action(o)
+                        o, **exploration_kwargs)
+        elif algo=='gac_bothq':
+            a, agent_info = get_bothq_exploration_action(o, **exploration_kwargs)
+        elif algo=='gac_oneq':
+            a, agent_info = get_oneq_exploration_action(o, **exploration_kwargs)
 
         next_o, r, d, env_info = env.step(a)
         observations.append(o)

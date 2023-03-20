@@ -2,18 +2,13 @@ import torch
 import utils.pytorch_util as ptu
 from trainer.policies import TanhNormal
 import math
-import numpy as np
 
 
-def get_optimistic_exploration_action(ob_np, policy=None, qfs=None, hyper_params=None):
+def get_greedy_exploration_action(ob_np, policy=None, qfs=None, hyper_params=None):
 
     assert ob_np.ndim == 1
 
-    beta_UB = hyper_params['beta_UB']
-    delta = hyper_params['delta']
-
     ob = ptu.from_numpy(ob_np)
-
     # Ensure that ob is not batched
     assert len(list(ob.shape)) == 1
 
@@ -23,19 +18,21 @@ def get_optimistic_exploration_action(ob_np, policy=None, qfs=None, hyper_params
     assert len(list(pre_tanh_mu_T.shape)) == 1, pre_tanh_mu_T
     assert len(list(std.shape)) == 1
 
-    pre_tanh_mu_T.requires_grad_()
-    tanh_mu_T = torch.tanh(pre_tanh_mu_T)
+    # pre_tanh_mu_T.requires_grad_()
+    # tanh_mu_T = torch.tanh(pre_tanh_mu_T)
 
+    dist = TanhNormal(pre_tanh_mu_T, std)
+    size = 10
+    actions = dist.sample_n([size])
     # Get the upper bound of the Q estimate
-    args = list(torch.unsqueeze(i, dim=0) for i in (ob, tanh_mu_T))
+    args =[ob.reshape(1,-1).expand(size,4), actions]
+    # args = list(torch.unsqueeze(i, dim=0) for i in (ob, actions[0]))
     Q1 = qfs[0](*args)
     Q2 = qfs[1](*args)
 
-    mu_Q = (Q1 + Q2) / 2.0
 
-    sigma_Q = torch.abs(Q1 - Q2) / 2.0
+    mean_Q = torch.max(Q1,Q2).mean()
 
-    Q_UB = mu_Q + beta_UB * sigma_Q
 
     # Obtain the gradient of Q_UB wrt to a
     # with a evaluated at mu_t
@@ -58,7 +55,7 @@ def get_optimistic_exploration_action(ob_np, policy=None, qfs=None, hyper_params
     ) + 10e-6
 
     # Obtain the change in mu
-    mu_C = math.sqrt(2.0 * delta) * torch.mul(Sigma_T, grad) / denom
+    mu_C = math.sqrt(2.0 * 223) * torch.mul(Sigma_T, grad) / denom
 
     assert mu_C.shape == pre_tanh_mu_T.shape
 

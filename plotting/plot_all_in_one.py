@@ -1,5 +1,4 @@
 # %%
-import pandas as pd
 import os
 import os.path as osp
 import matplotlib.pyplot as plt
@@ -7,19 +6,29 @@ import numpy as np
 import copy
 import csv
 
-from main import get_cmd_args, get_log_dir
 from utils.env_utils import domain_to_epoch
 
+rc_fonts = {
+    'xtick.direction': 'in',
+    'ytick.direction': 'in',
+    'xtick.labelsize':8,
+    'ytick.labelsize':8,
+    "font.family": "times",
+    "font.size": 8,
+    'axes.titlesize':8,
+    "legend.fontsize":8,
+    "axes.spines.right": False,
+    "axes.spines.top": False,
+    # 'figure.figsize': (8, 3.5),
+    # 'figure.figsize': (8.5, 11),
+}
+plt.rcParams.update(rc_fonts)
+plt.rc('axes', unicode_minus=False)
 
-plt.rcParams['font.size'] = '12'
 
+def get_one_domain_one_run_res(path):
 
-def get_one_domain_one_run_res(algo, domain, seed):
-
-
-
-    csv_path = osp.join('./data',
-        algo, domain, "seed_"+str(seed), 'progress.csv'
+    csv_path = osp.join(path, 'progress.csv'
     )
 
     values = []
@@ -66,16 +75,17 @@ def get_one_domain_one_run_res(algo, domain, seed):
     return values
 
 
-def get_one_domain_all_run_res(algo, domain, seeds):
+def get_one_domain_all_run_res(algo_domian_path):
 
     results = []
+    seeds = os.listdir(algo_domian_path)
+
 
     for seed in seeds:
-        try:
-            res = get_one_domain_one_run_res(algo, domain, seed)
-            results.append(res)
-        except:
-            continue
+        algo_domian_seed_path = os.path.join(algo_domian_path,seed)
+        res = get_one_domain_one_run_res(algo_domian_seed_path)
+        results.append(res)
+
 
     min_rows = min([len(col) for col in results])
     results = [col[0:min_rows] for col in results]
@@ -101,25 +111,11 @@ def smooth_results(results, smoothing_window=100):
     return smoothed
 
 
-def plot(values, label, color=[0, 0, 1, 1]):
-    mean = np.mean(values, axis=1)
-    std = np.std(values, axis=1)
 
-    x_vals = np.arange(len(mean))
+DOMAINS = ['humanoid', 'halfcheetah', 'hopper', 'ant', 'walker2d','swimmer']
+# DOMAINS = ['halfcheetah', ]
 
-    blur = copy.deepcopy(color)
-    blur[-1] = 0.1
-
-    plt.plot(x_vals, mean, label=label, color=color)
-    plt.fill_between(x_vals, mean - std, mean + std, color=blur)
-
-    plt.legend()
-
-
-# DOMAINS = ['humanoid', 'halfcheetah', 'hopper', 'ant', 'walker2d']
-DOMAINS = ['halfcheetah']
-
-seeds = [1,2]
+seeds = [1,2,3,4,5,6]
 
 
 
@@ -133,7 +129,7 @@ seeds = [1,2]
 #         'exploration/Average Returns'])
 #
 #     return result.values
-#tood
+#note
 # num_trains_per_train_loop == 4000:
 
 
@@ -146,14 +142,32 @@ def get_tick_space(domain):
         return 1000
 
     return 500
-COLORS = [ "#ccb974", '#8172b2', '#c44e52','#55a868','#4c72b0']
-for domain in DOMAINS:
-    plt.clf()
+
+
+
+algos_of_domain = {}
+algo_domian_paths = {}
+paths = ["/home/chenxing/data_fix","/home/chenxing/tmp/dat"]
+for path in paths:
+    algos = os.listdir(path)
+    for algo in algos:
+        domians = os.listdir(os.path.join(path,algo))
+        for domian in domians:
+            if domian not in algos_of_domain.keys():
+                algos_of_domain[domian] = [algo]
+            else:
+                algos_of_domain[domian].append(algo)
+            algo_domian_paths[algo + domian] = os.path.join(path,algo, domian)
+
+fig, axs = plt.subplots(2,3)
+axs = axs.flatten()
+for domain, ax in zip(DOMAINS, axs):
+    # plt.clf()
     env = f'{domain}-v2'
-
-    for algo in ("oac", "sac"):
-
-        results = get_one_domain_all_run_res(algo, domain, seeds)
+    COLORS = ["#ccb974", '#8172b2', '#c44e52', '#55a868', '#4c72b0']
+    for algo in algos_of_domain[domain]:
+        algo_domian_path = algo_domian_paths[algo+domain]
+        results = get_one_domain_all_run_res(algo_domian_path)
         results = smooth_results(results)
 
         mean = np.mean(results, axis=1)
@@ -162,43 +176,30 @@ for domain in DOMAINS:
         x_vals = np.arange(len(mean))
         color = COLORS.pop(0)
 
-        plt.plot(x_vals, mean, label=algo, color=color)
-        plt.fill_between(x_vals, mean - std, mean + std, color=color, alpha=0.1)
-
-
-        # if domain == 'humanoid' and FORMAL_FIG:
-        #     mean = np.mean(results, axis=1)
-        #     x_vals = np.arange(len(mean))
-        #
-        #     # This is the index where OAC has
-        #     # the same performance as SAC with 10 million steps
-        #     # Plus 200 so that we are not overstating our claim
-        #     magic_idx = np.argmax(mean > 8000) + 300
-        #
-        #     plt.plot(8000 * np.ones(magic_idx), linestyle='--',
-        #              color=[0, 0, 1, 1], linewidth=3, label='Soft Actor Critic 10 million steps performance')
-        #     plt.vlines(x=magic_idx,
-        #                ymin=0, ymax=8000, linestyle='--',
-        #                color=[0, 0, 1, 1],)
+        ax.plot(x_vals, mean, label=algo, color=color)
+        ax.fill_between(x_vals, mean - std, mean + std, color=color, alpha=0.1)
 
         """
         Plot result
         """
 
-
-    plt.title('performance compare on '+ env)
-
-    plt.ylabel('Average Episode Return')
+    ax.set_title(env)
+    ax.set_ylabel('average reward')
 
     xticks = np.arange(0, domain_to_epoch(
         domain) + 1, get_tick_space(domain))
 
-    plt.xticks(xticks, xticks / 1000.0)
+    ax.set_xticks(xticks, xticks / 1000.0)
 
-    plt.xlabel('Number of environment steps in millions')
-    plt.legend()
+    ax.set_xlabel('million steps')
+    ax.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
+    if domain=='halfcheetah':
+        ax.legend()
 
-    plt.show()
+plt.tight_layout()
+# plt.show()
+
+fig.savefig('./plotting/pdf/all.pdf', bbox_inches='tight', dpi=300, backend='pdf')
     # plot_path = './data/plot'
     # os.makedirs(plot_path, exist_ok=True)
 

@@ -7,7 +7,6 @@ torch.set_printoptions(profile='full')
 from torch import nn as nn
 from utils.logging import logger
 import utils.eval_util as eval_util
-from utils.rng import get_global_pkg_rng_state
 import utils.pytorch_util as ptu
 
 import gtimer as gt
@@ -15,18 +14,12 @@ from replay_buffer import ReplayBuffer
 from path_collector import MdpPathCollector, RemoteMdpPathCollector
 from tqdm import trange
 
-import ray
-import torch
-import numpy as np
-import random
-
 
 class BatchRLAlgorithm(metaclass=abc.ABCMeta):
     def __init__(
             self,
             trainer,
             exploration_data_collector: MdpPathCollector,
-            remote_eval_data_collector: RemoteMdpPathCollector,
             replay_buffer: ReplayBuffer,
             batch_size,
             max_path_length,
@@ -36,7 +29,6 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
             num_trains_per_train_loop,
             num_train_loops_per_epoch=1,
             min_num_steps_before_training=0,
-            optimistic_exp_hp=None,
             algo='sac',
     ):
         super().__init__()
@@ -52,7 +44,6 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
         self.num_train_loops_per_epoch = num_train_loops_per_epoch
         self.num_expl_steps_per_train_loop = num_expl_steps_per_train_loop
         self.min_num_steps_before_training = min_num_steps_before_training
-        self.optimistic_exp_hp = optimistic_exp_hp
         self.algo=algo
 
         """
@@ -70,7 +61,6 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
         self.trainer = trainer
 
         self.expl_data_collector = exploration_data_collector
-        self.remote_eval_data_collector = remote_eval_data_collector
 
         self.replay_buffer = replay_buffer
 
@@ -123,12 +113,9 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
                     self.max_path_length,
                     self.num_expl_steps_per_train_loop,
                     discard_incomplete_paths=False,
-
-                    optimistic_exploration=self.optimistic_exp_hp['should_use'],
-                    optimistic_exploration_kwargs=dict(
+                    exploration_kwargs=dict(
                         policy=self.trainer.policy,
                         qfs=[self.trainer.qf1, self.trainer.qf2],
-                        hyper_params=self.optimistic_exp_hp
                     ),
                     algo=self.algo
                 )
@@ -170,27 +157,6 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
         logger.dump_tabular(with_prefix=False, with_timestamp=False,
                             write_header=write_header)
 
-    def _get_snapshot(self, epoch):
-        snapshot = dict(
-            trainer=self.trainer.get_snapshot(),
-            exploration=self.expl_data_collector.get_snapshot(),
-            evaluation_remote=ray.get(
-                self.remote_eval_data_collector.get_snapshot.remote()),
-            evaluation_remote_rng_state=ray.get(
-                self.remote_eval_data_collector.get_global_pkg_rng_state.remote()
-            ),
-            replay_buffer=self.replay_buffer.get_snapshot()
-        )
-
-        # What epoch indicates is that at the end of this epoch,
-        # The state of the program is snapshot
-        # Not to be consfused with at the beginning of the epoch
-        snapshot['epoch'] = epoch
-
-        # Save the state of various rng
-        snapshot['global_pkg_rng_state'] = get_global_pkg_rng_state()
-
-        return snapshot
 
     def _log_stats(self, epoch):
         logger.log("Epoch {} finished".format(epoch), with_timestamp=True)

@@ -2,12 +2,10 @@
 Common evaluation utilities.
 """
 
-from collections import OrderedDict
+from collections import OrderedDict,defaultdict
 from numbers import Number
 
 import numpy as np
-
-import utils.pythonplusplus as ppp
 
 
 def get_generic_path_information(paths, stat_prefix=''):
@@ -36,7 +34,7 @@ def get_generic_path_information(paths, stat_prefix=''):
     for info_key in ['env_infos', 'agent_infos']:
         if info_key in paths[0]:
             all_env_infos = [
-                ppp.list_of_dicts__to__dict_of_lists(p[info_key])
+                list_of_dicts__to__dict_of_lists(p[info_key])
                 for p in paths
             ]
             for k in all_env_infos[0].keys():
@@ -112,3 +110,27 @@ def create_stats_ordered_dict(
         stats[name + ' Max'] = np.max(data)
         stats[name + ' Min'] = np.min(data)
     return stats
+
+def list_of_dicts__to__dict_of_lists(lst):
+    """
+    letsteseateasdad min
+    ```
+    x = [
+        {'foo': 3, 'bar': 1},
+        {'foo': 4, 'bar': 2},
+        {'foo': 5, 'bar': 3},
+    ]
+    ppp.list_of_dicts__to__dict_of_lists(x)
+    # Output:
+    # {'foo': [3, 4, 5], 'bar': [1, 2, 3]}
+    ```
+    """
+    if len(lst) == 0:
+        return {}
+    keys = lst[0].keys()
+    output_dict = defaultdict(list)
+    for d in lst:
+        assert set(d.keys()) == set(keys)
+        for k in keys:
+            output_dict[k].append(d[k])
+    return output_dict

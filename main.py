@@ -4,7 +4,7 @@ import torch
 import utils.pytorch_util as ptu
 from replay_buffer import ReplayBuffer
 from utils.env_utils import NormalizedBoxEnv, domain_to_epoch, env_producer
-from utils.rng import set_global_pkg_rng_state
+
 from launcher_util import set_up
 from path_collector import MdpPathCollector, RemoteMdpPathCollector
 
@@ -42,9 +42,7 @@ if __name__ == "__main__":
     variant['algorithm_kwargs']['num_expl_steps_per_train_loop'] = args.num_expl_steps_per_train_loop
     variant['algorithm_kwargs']['algo'] = args.algo
 
-    variant['optimistic_exp']['should_use'] = args.beta_UB > 0 or args.delta > 0
-    variant['optimistic_exp']['beta_UB'] = args.beta_UB
-    variant['optimistic_exp']['delta'] = args.delta
+    variant['trainer_kwargs']['use_automatic_entropy_tuning'] = args.no_aet
 
     set_gpu_mode(args.use_gpu and torch.cuda.is_available(), args.seed)
 
@@ -70,12 +68,6 @@ if __name__ == "__main__":
         obs_dim, action_dim, hidden_sizes=[M, M])
     # Finished getting producer
 
-    # remote_eval_path_collector = RemoteMdpPathCollector.remote(
-    #     domain, seed * 10 + 1,
-    #     policy_producer
-    # )
-    remote_eval_path_collector = None
-
     expl_path_collector = MdpPathCollector(
         expl_env,
     )
@@ -95,9 +87,7 @@ if __name__ == "__main__":
     algorithm = BatchRLAlgorithm(
         trainer=trainer,
         exploration_data_collector=expl_path_collector,
-        remote_eval_data_collector=remote_eval_path_collector,
         replay_buffer=replay_buffer,
-        optimistic_exp_hp=variant['optimistic_exp'],
         **variant['algorithm_kwargs']
     )
 

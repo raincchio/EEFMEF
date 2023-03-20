@@ -126,29 +126,30 @@ class NormalizedBoxEnv(ProxyEnv):
 
 def domain_to_env(name):
 
-    from gym.envs.mujoco import HalfCheetahEnv, \
-        InvertedPendulumEnv, HumanoidEnv, \
-        HopperEnv, AntEnv, Walker2dEnv
+    from gym.envs.mujoco import HalfCheetahEnv, HumanoidEnv, \
+        HopperEnv, AntEnv, Walker2dEnv, SwimmerEnv,InvertedPendulumEnv
 
     return {
-        'invertedpendulum': InvertedPendulumEnv,
         'humanoid': HumanoidEnv,
         'halfcheetah': HalfCheetahEnv,
         'hopper': HopperEnv,
         'ant': AntEnv,
-        'walker2d': Walker2dEnv
+        'walker2d': Walker2dEnv,
+        'swimmer': SwimmerEnv,
+        "pendulum":InvertedPendulumEnv
     }[name]
 
 
 def domain_to_epoch(name):
 
     return {
-        'invertedpendulum': 300,
-        'humanoid': 9000,
-        'halfcheetah': 5000,
-        'hopper': 2000,
-        'ant': 5000,
-        'walker2d': 5000
+        'humanoid': 3000,
+        'halfcheetah': 3000,
+        'hopper': 3000,
+        'ant': 3000,
+        'walker2d': 3000,
+        'swimmer': 3000,
+        'pendulum': 30,
     }[name]
 
 

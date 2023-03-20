@@ -263,7 +263,7 @@ class Logger(object):
                 for line in tabulate(self._tabular).split('\n'):
                     self.log(line, *args, **kwargs)
             tabular_dict = dict(self._tabular)
-            # Also write to the csv files
+            # Also write to the csv files asdsad
             # This assumes that the keys in each iteration won't change!
             for tabular_fd in list(self._tabular_fds.values()):
                 writer = csv.DictWriter(tabular_fd,

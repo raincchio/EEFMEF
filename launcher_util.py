@@ -1,13 +1,10 @@
-
+import random
+import numpy as np
+import torch
 import json
 import os
 import os.path as osp
-
 from utils.logging import logger
-from utils.pytorch_util import set_gpu_mode
-from utils.rng import set_seed
-from utils.pythonplusplus import load_gzip_pickle, load_pkl, dump_pkl
-
 
 def set_up(
         variant,
@@ -61,25 +58,28 @@ def set_up(
     exp_setting_pkl_path = osp.join(log_dir, 'experiment.pkl')
 
     if osp.isfile(exp_setting_pkl_path):
-        # Sanity check to make sure the experimental setting
-        # of the saved data and the current experiment run is the same
-
         logger.log(f'Log dir is not empty: {os.listdir(log_dir)}')
+    # Save the current experimental setting
+    with open(exp_setting_pkl_path, 'w') as f:
+        f.write(str(exp_setting))
 
-        # _continue = input("continue[1] or exit[0]?")
-        # if not _continue:
-        #     exit(0)
     # Log the variant
     logger.log("Variant:")
     logger.log(json.dumps(dict_to_safe_json(variant), indent=2))
     variant_log_path = osp.join(log_dir, 'variant.json')
     logger.log_variant(variant_log_path, variant)
-
-    # Save the current experimental setting
-    dump_pkl(exp_setting_pkl_path, exp_setting)
-
     logger.log(f'Seed: {seed}')
-    set_seed(seed)
+
+    # ensure reproduce
+    torch.set_num_threads(1)
+    seed = int(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
 
 
 def setup_logger(
