@@ -121,9 +121,6 @@ class SACTrainer(object):
         else:
             alpha_loss = 0
             alpha = 1
-        if not self.add_entopy_to_reward:
-            alpha_loss=0
-            alpha=0
 
         q_new_actions = torch.min(
             self.qf1(obs, new_obs_actions),
