@@ -74,7 +74,10 @@ def get_bothq_exploration_action(ob_np, policy=None, qfs=None, hyper_params=None
     args_new = list(torch.unsqueeze(i, dim=0) for i in (ob, ac))
     Q1_new = qfs[0](*args_new)
     Q2_new = qfs[1](*args_new)
-    if Q2_new > Q2 and Q1_new > Q1:
-        return ac_np, {}
-    else:
-        return ptu.get_numpy(pre_tanh_mu_T), {}
+    if Q2_new < Q2 or Q1_new < Q1:
+        dist = TanhNormal(pre_tanh_mu_T, std)
+
+        ac = dist.sample()
+
+        ac_np = ptu.get_numpy(ac)
+    return ac_np, {}

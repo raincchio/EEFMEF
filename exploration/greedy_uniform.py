@@ -1,11 +1,11 @@
 import torch
+
 import utils.pytorch_util as ptu
 from trainer.policies import TanhNormal
-import math
-import numpy as np
+from torch.distributions import Uniform
 
 
-def get_greedy_exploration_action(ob_np, policy=None, qfs=None):
+def get_greedy_uniform_exploration_action(ob_np, policy=None, qfs=None):
 
     assert ob_np.ndim == 1
 
@@ -16,11 +16,8 @@ def get_greedy_exploration_action(ob_np, policy=None, qfs=None):
 
     _, pre_tanh_mu_T, _, _, std, _ = policy(ob)
 
-    dist = TanhNormal(pre_tanh_mu_T, std)
-
     size = 32
-    actions = dist.sample_n([size])
-
+    actions = torch. tanh(Uniform(pre_tanh_mu_T-2*std, pre_tanh_mu_T+2*std).sample(size))
 
     # actions = (torch.rand(size,policy.output_size)*2-1).to(ptu.device)
     # dist = TanhNormal(pre_tanh_mu_T, std)

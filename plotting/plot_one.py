@@ -113,26 +113,8 @@ def smooth_results(results, smoothing_window=100):
 
 
 
-DOMAINS = ['humanoid', 'halfcheetah', 'hopper', 'ant', 'walker2d','swimmer']
-# DOMAINS = ['halfcheetah']
-
-seeds = [1,2,3,4,5,6]
-
-
-
-# def sac_get_one_domain_one_run_res(path, domain, seed):
-#
-#     csv_path = osp.join(
-#         path, domain, f'seed_{seed}', 'progress.csv'
-#     )
-#
-#     result = pd.read_csv(csv_path, usecols=[
-#         'exploration/Average Returns'])
-#
-#     return result.values
-#note
-# num_trains_per_train_loop == 4000:
-
+# DOMAINS = ['humanoid', 'halfcheetah', 'hopper', 'ant', 'walker2d','swimmer']
+DOMAINS = ['halfcheetah']
 
 def get_tick_space(domain):
 
@@ -148,8 +130,8 @@ def get_tick_space(domain):
 
 algos_of_domain = {}
 algo_domian_paths = {}
-task = "tmp"
-paths = ["/home/chenxing/experiments/performence"]
+task = "one"
+paths = ["/home/chenxing/experiments/ttttt"]
 for path in paths:
     algos = os.listdir(path)
     for algo in algos:
@@ -167,9 +149,10 @@ for domian, algo in algos_of_domain.items():
     algos_set=algos_set|set(algo)
 for domian, algo in algo_domian_paths.items():
     print(algo, ":",domian)
-algos_set = list(algos_set)
-COLORS = ["#ccb974", '#8172b2', '#c44e52', '#55a868', '#4c72b0', '#0000FF']
-fig, axs = plt.subplots(2,3)
+algos_set = list(sorted(algos_set))
+print(algos_set)
+COLORS = ['#c44e52',"#ccb974",'#8172b2',  '#55a868', '#4c72b0', '#0000FF']
+fig, axs = plt.subplots(1,2)
 axs = axs.flatten()
 for domain, ax in zip(DOMAINS, axs):
     # plt.clf()

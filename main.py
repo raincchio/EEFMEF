@@ -15,8 +15,8 @@ from trainer.trainer import SACTrainer
 from rl_algorithm import BatchRLAlgorithm
 from utils.pytorch_util import set_gpu_mode
 
-import ray
-import logging
+# import ray
+# import logging
 # ray.init(
 #     # If true, then output from all of the worker processes on all nodes will be directed to the driver.
 #     # log_to_driver=True,

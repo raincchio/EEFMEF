@@ -76,6 +76,9 @@ def get_oneq_exploration_action(ob_np, policy=None, qfs=None):
     Q2_new = qfs[1](*args_new)
 
     if Q2_new < Q2 and Q1_new < Q1:
-        return ptu.get_numpy(pre_tanh_mu_T), {}
-    else:
-        return ac_np, {}
+        dist = TanhNormal(pre_tanh_mu_T, std)
+
+        ac = dist.sample()
+
+        ac_np = ptu.get_numpy(ac)
+    return ac_np, {}

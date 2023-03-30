@@ -62,7 +62,7 @@ def get_optimistic_exploration_action(ob_np, policy=None, qfs=None):
 
 
     mu_E = pre_tanh_mu_T + mu_C
-
+    print(ptu.get_numpy(mu_C), ptu.get_numpy(pre_tanh_mu_T))
     # Construct the tanh normal distribution and sample the exploratory action from it
     assert mu_E.shape == std.shape
 

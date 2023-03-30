@@ -63,5 +63,8 @@ def get_log_dir(args, should_include_base_log_dir=True, should_include_seed=True
 
     # add home
     log_dir= osp.join(os.path.expanduser("~"), 'experiments',log_dir)
+    if osp.exists(log_dir):
+        import shutil
+        shutil.rmtree(log_dir)
 
     return log_dir

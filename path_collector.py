@@ -11,6 +11,7 @@ from exploration.optimistic import get_optimistic_exploration_action
 from exploration.greedy import get_greedy_exploration_action
 from exploration.greedy_bothq import get_bothq_exploration_action
 from exploration.greedy_oneq import get_oneq_exploration_action
+from exploration.greedy_uniform import get_greedy_uniform_exploration_action
 
 
 class MdpPathCollector(object):
@@ -193,6 +194,10 @@ def rollout(
             a, agent_info = get_bothq_exploration_action(o, **exploration_kwargs)
         elif algo=='gac_oneq':
             a, agent_info = get_oneq_exploration_action(o, **exploration_kwargs)
+        elif algo=='gac':
+            a, agent_info = get_greedy_exploration_action(o, **exploration_kwargs)
+        elif algo=='gac_uniform':
+            a, agent_info = get_greedy_uniform_exploration_action(o, **exploration_kwargs)
 
         next_o, r, d, env_info = env.step(a)
         observations.append(o)

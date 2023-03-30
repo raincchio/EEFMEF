@@ -6,7 +6,7 @@ from model.networks import Mlp
 
 
 import torch
-from torch.distributions import Distribution, Normal
+from torch.distributions import Distribution, Normal, Uniform
 import utils.pytorch_util as ptu
 
 LOG_SIG_MAX = 2

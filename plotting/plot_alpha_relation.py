@@ -35,7 +35,6 @@ def get_one_domain_one_run_res(path, key='exploration/Average Returns'):
 
     with open(csv_path, 'r') as csv_file:
         reader = csv.reader(csv_file)
-        # csv_file.read()
 
         col_names = next(reader)
 
@@ -114,7 +113,7 @@ def smooth_results(results, smoothing_window=100):
 
 
 DOMAINS = ['humanoid', 'halfcheetah', 'hopper', 'ant', 'walker2d','swimmer']
-# DOMAINS = ['halfcheetah']
+# DOMAINS = ['halfcheetah', ]
 
 seeds = [1,2,3,4,5,6]
 
@@ -148,8 +147,8 @@ def get_tick_space(domain):
 
 algos_of_domain = {}
 algo_domian_paths = {}
-task = "tmp"
-paths = ["/home/chenxing/experiments/performence"]
+task = "alpha_value"
+paths = ["/home/chenxing/experiments/tmp",]
 for path in paths:
     algos = os.listdir(path)
     for algo in algos:
@@ -161,30 +160,27 @@ for path in paths:
                 algos_of_domain[domian].append(algo)
             algo_domian_paths[algo + domian] = os.path.join(path,algo, domian)
 
-algos_set = set()
 for domian, algo in algos_of_domain.items():
     print(domian, ":",algo)
-    algos_set=algos_set|set(algo)
 for domian, algo in algo_domian_paths.items():
     print(algo, ":",domian)
-algos_set = list(algos_set)
-COLORS = ["#ccb974", '#8172b2', '#c44e52', '#55a868', '#4c72b0', '#0000FF']
+
 fig, axs = plt.subplots(2,3)
 axs = axs.flatten()
 for domain, ax in zip(DOMAINS, axs):
     # plt.clf()
     env = f'{domain}-v2'
-
+    COLORS = ["#ccb974", '#8172b2', '#c44e52', '#55a868', '#4c72b0', '#0000FF']
     for algo in algos_of_domain[domain]:
         algo_domian_path = algo_domian_paths[algo+domain]
-        results = get_one_domain_all_run_res(algo_domian_path,)
+        results = get_one_domain_all_run_res(algo_domian_path,  key='trainer/Alpha')
         results = smooth_results(results)
 
         mean = np.mean(results, axis=1)
         std = np.std(results, axis=1)
 
         x_vals = np.arange(len(mean))
-        color = COLORS[algos_set.index(algo)]
+        color = COLORS.pop(0)
 
         ax.plot(x_vals, mean, label=algo, color=color)
         ax.fill_between(x_vals, mean - std, mean + std, color=color, alpha=0.1)
@@ -194,7 +190,7 @@ for domain, ax in zip(DOMAINS, axs):
         """
 
     ax.set_title(env)
-    ax.set_ylabel('average reward')
+    ax.set_ylabel('alpha value')
 
     xticks = np.arange(0, domain_to_epoch(
         domain) + 1, get_tick_space(domain))
@@ -207,8 +203,8 @@ for domain, ax in zip(DOMAINS, axs):
         ax.legend()
 
 plt.tight_layout()
-plt.show()
-# fig.savefig('./plotting/pdf/'+task+'.pdf', bbox_inches='tight', dpi=300, backend='pdf')
+# plt.show()
+fig.savefig('./plotting/pdf/'+task+'.pdf', bbox_inches='tight', dpi=300, backend='pdf')
     # plot_path = './data/plot'
     # os.makedirs(plot_path, exist_ok=True)
 
