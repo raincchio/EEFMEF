@@ -113,7 +113,7 @@ def smooth_results(results, smoothing_window=100):
 
 
 
-DOMAINS = ['humanoid', 'halfcheetah', 'hopper', 'ant', 'walker2d','swimmer']
+DOMAINS = ['humanoid','ant', 'halfcheetah', 'walker2d', 'hopper', 'swimmer']
 # DOMAINS = ['halfcheetah']
 
 seeds = [1,2,3,4,5,6]
@@ -148,8 +148,8 @@ def get_tick_space(domain):
 
 algos_of_domain = {}
 algo_domian_paths = {}
-task = "tmp"
-paths = ["/home/chenxing/experiments/performence"]
+task = "sample_method"
+paths = ["/home/chenxing/experiments/sample_method"]
 for path in paths:
     algos = os.listdir(path)
     for algo in algos:
@@ -177,7 +177,7 @@ for domain, ax in zip(DOMAINS, axs):
 
     for algo in algos_of_domain[domain]:
         algo_domian_path = algo_domian_paths[algo+domain]
-        results = get_one_domain_all_run_res(algo_domian_path,)
+        results = get_one_domain_all_run_res(algo_domian_path,)#key='trainer/Alpha'
         results = smooth_results(results)
 
         mean = np.mean(results, axis=1)
@@ -207,8 +207,9 @@ for domain, ax in zip(DOMAINS, axs):
         ax.legend()
 
 plt.tight_layout()
-plt.show()
-# fig.savefig('./plotting/pdf/'+task+'.pdf', bbox_inches='tight', dpi=300, backend='pdf')
+# plt.show()
+fig.savefig('./plotting/pdf/'+task+'.pdf', bbox_inches='tight', dpi=300, backend='pdf')
+print('./plotting/pdf/'+task+'.pdf ','file saved!')
     # plot_path = './data/plot'
     # os.makedirs(plot_path, exist_ok=True)
 

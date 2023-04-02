@@ -44,6 +44,8 @@ if __name__ == "__main__":
 
     variant['trainer_kwargs']['use_automatic_entropy_tuning'] = args.no_aet
 
+    variant['exploration_kwargs']['sample_size'] = args.sample_size
+
     set_gpu_mode(args.use_gpu and torch.cuda.is_available(), args.seed)
 
     set_up(variant,
@@ -88,7 +90,8 @@ if __name__ == "__main__":
         trainer=trainer,
         exploration_data_collector=expl_path_collector,
         replay_buffer=replay_buffer,
-        **variant['algorithm_kwargs']
+        **variant['algorithm_kwargs'],
+        **variant['exploration_kwargs']
     )
 
     algorithm.to(ptu.device)

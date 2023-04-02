@@ -120,9 +120,9 @@ class SACTrainer(object):
             alpha = self.log_alpha.exp()
         else:
             alpha_loss = 0
-            alpha = 1
+            alpha = 0
 
-        q_new_actions = torch.max(
+        q_new_actions = torch.min(
             self.qf1(obs, new_obs_actions),
             self.qf2(obs, new_obs_actions),
         )

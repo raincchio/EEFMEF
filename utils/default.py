@@ -25,7 +25,9 @@ variant = dict(
         use_automatic_entropy_tuning=True,
 
     ),
-    optimistic_exp={}
+    exploration_kwargs=dict(
+        sample_size=32,
+    )
 )
 
 
@@ -38,6 +40,7 @@ def get_cmd_args():
     parser.add_argument('--use_gpu', default=False, action='store_true')
     parser.add_argument('--no_aet', default=True, action='store_false')
     parser.add_argument('--task', type=str, default='performence')
+    parser.add_argument('--sample_size', type=int, default=32)
 
     # Training param
     parser.add_argument('--num_expl_steps_per_train_loop',

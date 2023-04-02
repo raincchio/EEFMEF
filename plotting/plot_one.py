@@ -131,7 +131,7 @@ def get_tick_space(domain):
 algos_of_domain = {}
 algo_domian_paths = {}
 task = "one"
-paths = ["/home/chenxing/experiments/ttttt"]
+paths = ["/home/chenxing/experiments/ttttt", '/home/chenxing/experiments/gac_max']
 for path in paths:
     algos = os.listdir(path)
     for algo in algos:

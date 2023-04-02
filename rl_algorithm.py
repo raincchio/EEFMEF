@@ -29,6 +29,7 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
             num_trains_per_train_loop,
             num_train_loops_per_epoch=1,
             min_num_steps_before_training=0,
+            sample_size=32,
             algo='sac',
     ):
         super().__init__()
@@ -45,6 +46,7 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
         self.num_expl_steps_per_train_loop = num_expl_steps_per_train_loop
         self.min_num_steps_before_training = min_num_steps_before_training
         self.algo=algo
+        self.sample_size = sample_size
 
         """
         The class mutable state
@@ -116,6 +118,7 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
                     exploration_kwargs=dict(
                         policy=self.trainer.policy,
                         qfs=[self.trainer.qf1, self.trainer.qf2],
+                        sample_size=self.sample_size
                     ),
                     algo=self.algo
                 )
