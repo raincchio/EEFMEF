@@ -2,16 +2,14 @@ import random
 import numpy as np
 import torch
 import json
-import os
 import os.path as osp
 from utils.logging import logger
+from utils.pytorch_util import set_gpu_mode
 
 def set_up(
         variant,
         seed=None,
-        # Logger params:
-        snapshot_mode='last',
-        snapshot_gap=1,
+        use_gpu=True
 ):
     """
     Run an experiment locally without any serialization.
@@ -29,39 +27,13 @@ def set_up(
     the directory will be auto-generated based on the exp_prefix.
     :return:
     """
+    set_gpu_mode(use_gpu and torch.cuda.is_available(), seed)
 
     log_dir = variant['log_dir']
-
-    # The logger's default mode is to
-    # append to the text file if the file already exists
-    # So this would not override and erase any existing
-    # log file in the same log dir.
     logger.reset()
     setup_logger(
-        snapshot_mode=snapshot_mode,
-        snapshot_gap=snapshot_gap,
         log_dir=log_dir,
     )
-
-
-    run_experiment_here_kwargs = dict(
-        variant=variant,
-        seed=seed,
-        snapshot_mode=snapshot_mode,
-        snapshot_gap=snapshot_gap,
-    )
-
-    exp_setting = dict(
-        run_experiment_here_kwargs=run_experiment_here_kwargs
-    )
-
-    exp_setting_pkl_path = osp.join(log_dir, 'experiment.pkl')
-
-    if osp.isfile(exp_setting_pkl_path):
-        logger.log(f'Log dir is not empty: {os.listdir(log_dir)}')
-    # Save the current experimental setting
-    with open(exp_setting_pkl_path, 'w') as f:
-        f.write(str(exp_setting))
 
     # Log the variant
     logger.log("Variant:")
@@ -87,8 +59,6 @@ def setup_logger(
     text_log_file="debug.log",
     tabular_log_file="progress.csv",
     log_tabular_only=False,
-    snapshot_mode="last",
-    snapshot_gap=1,
 ):
 
     tabular_log_path = osp.join(log_dir, tabular_log_file)
@@ -97,9 +67,6 @@ def setup_logger(
     logger.add_text_output(text_log_path)
     logger.add_tabular_output(tabular_log_path)
 
-    logger.set_snapshot_dir(log_dir)
-    logger.set_snapshot_mode(snapshot_mode)
-    logger.set_snapshot_gap(snapshot_gap)
     logger.set_log_tabular_only(log_tabular_only)
 
     logger.log(f'Logging to: {log_dir}')

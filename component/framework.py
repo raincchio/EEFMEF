@@ -1,26 +1,27 @@
 import abc
 from collections import OrderedDict
-from plotting.color import bcolors
-from torch import tensor
+
 import torch
 torch.set_printoptions(profile='full')
-from torch import nn as nn
 from utils.logging import logger
 import utils.eval_util as eval_util
-import utils.pytorch_util as ptu
 
 import gtimer as gt
-from replay_buffer import ReplayBuffer
-from path_collector import MdpPathCollector, RemoteMdpPathCollector
+from component.replay_buffer import ReplayBuffer
+from component.path_collector import MdpPathCollector, RemoteMdpPathCollector
 from tqdm import trange
+from utils.pytorch_util import state_dict_cpu, save_model
+import ray
 
 
-class BatchRLAlgorithm(metaclass=abc.ABCMeta):
+class Framework(metaclass=abc.ABCMeta):
     def __init__(
             self,
             trainer,
             exploration_data_collector: MdpPathCollector,
+            remote_eval_data_collector:RemoteMdpPathCollector,
             replay_buffer: ReplayBuffer,
+            seed,
             batch_size,
             max_path_length,
             num_epochs,
@@ -30,13 +31,18 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
             num_train_loops_per_epoch=1,
             min_num_steps_before_training=0,
             sample_size=32,
+            sample_range=1,
+            beta=1,
+            log_model=False,
             algo='sac',
+
     ):
         super().__init__()
 
         """
         The class state which should not mutate
         """
+        self.seed=seed
         self.batch_size = batch_size
         self.max_path_length = max_path_length
         self.num_epochs = num_epochs
@@ -47,6 +53,9 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
         self.min_num_steps_before_training = min_num_steps_before_training
         self.algo=algo
         self.sample_size = sample_size
+        self.sample_range = sample_range
+        self.beta = beta
+        self.log_model = log_model
 
         """
         The class mutable state
@@ -63,11 +72,13 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
         self.trainer = trainer
 
         self.expl_data_collector = exploration_data_collector
-
+        self.remote_eval_data_collector = remote_eval_data_collector
         self.replay_buffer = replay_buffer
 
     def train(self, start_epoch=0):
         self._start_epoch = start_epoch
+        if self.log_model:
+            save_model(self.trainer, seed=self.seed, epoch=0)
         self._train()
 
 
@@ -91,22 +102,16 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
                 save_itrs=True,
         ):
 
-            # To evaluate the policy remotely,
-            # we're shipping the policy params to the remote evaluator
-            # This can be made more efficient
-            # But this is currently extremely cheap due to small network size
-
-            # pol_state_dict = ptu.state_dict_cpu(self.trainer.policy)
+            pol_state_dict = state_dict_cpu(self.trainer.policy)
 
             # ray.put("pol_state_dict")
 
-            # remote_eval_obj_id = self.remote_eval_data_collector.async_collect_new_paths.remote(
-            #     self.max_path_length,
-            #     self.num_eval_steps_per_epoch,
-            #     discard_incomplete_paths=True,
-            #
-            #     deterministic_pol=True,
-            #     pol_state_dict=pol_state_dict)
+            remote_eval_obj_id = self.remote_eval_data_collector.async_collect_new_paths.remote(
+                self.max_path_length,
+                self.num_eval_steps_per_epoch,
+                discard_incomplete_paths=True,
+                deterministic_pol=True,
+                pol_state_dict=pol_state_dict)
 
             for _ in range(self.num_train_loops_per_epoch):
 
@@ -118,9 +123,11 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
                     exploration_kwargs=dict(
                         policy=self.trainer.policy,
                         qfs=[self.trainer.qf1, self.trainer.qf2],
-                        sample_size=self.sample_size
+                        sample_size=self.sample_size,
+                        sample_range=self.sample_range,
+                        beta=(epoch+1)*self.beta
                     ),
-                    algo=self.algo
+                    method=self.algo
                 )
 
                 self.replay_buffer.add_paths(new_expl_paths)
@@ -132,7 +139,7 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
                 gt.stamp('after_train')
 
             # Wait for eval to finish
-            # ray.get([remote_eval_obj_id])
+            ray.get([remote_eval_obj_id])
 
             self._end_epoch(epoch)
 
@@ -140,18 +147,12 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
         self._log_stats(epoch)
 
         self.expl_data_collector.end_epoch(epoch)
-        # ray.get([self.remote_eval_data_collector.end_epoch.remote(epoch)])
+        ray.get([self.remote_eval_data_collector.end_epoch.remote(epoch)])
 
         self.replay_buffer.end_epoch(epoch)
         self.trainer.end_epoch(epoch)
-
-        # We can only save the state of the program
-        # after we call end epoch on all objects with internal state.
-        # This is so that restoring from the saved state will
-        # lead to identical result as if the program was left running.
-        if epoch == 5000:
-            snapshot = self._get_snapshot(epoch)
-            logger.save_itr_params(epoch, snapshot)
+        if self.log_model and (epoch+1) %500==0:
+            save_model(self.trainer,self.seed, epoch)
 
         logger.record_dict(_get_epoch_timings())
         logger.record_tabular('Epoch', epoch)
@@ -189,19 +190,19 @@ class BatchRLAlgorithm(metaclass=abc.ABCMeta):
             eval_util.get_generic_path_information(expl_paths),
             prefix="exploration/",
         )
-        # """
-        # Remote Evaluation
-        # """
-        # logger.record_dict(
-        #     ray.get(self.remote_eval_data_collector.get_diagnostics.remote()),
-        #     prefix='remote_evaluation/',
-        # )
-        # remote_eval_paths = ray.get(
-        #     self.remote_eval_data_collector.get_epoch_paths.remote())
-        # logger.record_dict(
-        #     eval_util.get_generic_path_information(remote_eval_paths),
-        #     prefix="remote_evaluation/",
-        # )
+        """
+        Remote Evaluation
+        """
+        logger.record_dict(
+            ray.get(self.remote_eval_data_collector.get_diagnostics.remote()),
+            prefix='remote_evaluation/',
+        )
+        remote_eval_paths = ray.get(
+            self.remote_eval_data_collector.get_epoch_paths.remote())
+        logger.record_dict(
+            eval_util.get_generic_path_information(remote_eval_paths),
+            prefix="remote_evaluation/",
+        )
 
         """
         Misc

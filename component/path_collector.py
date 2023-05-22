@@ -8,11 +8,10 @@ from utils.eval_util import create_stats_ordered_dict
 import numpy as np
 
 from exploration.optimistic import get_optimistic_exploration_action
-from exploration.greedy import get_greedy_exploration_action
+from exploration.greedy_oac import get_greedy_oac_exploration_action
 from exploration.greedy_bothq import get_bothq_exploration_action
 from exploration.greedy_oneq import get_oneq_exploration_action
-from exploration.greedy_uniform import get_greedy_uniform_exploration_action
-
+from exploration.greedy import get_greedy_exploration_action
 
 class MdpPathCollector(object):
     def __init__(
@@ -43,7 +42,7 @@ class MdpPathCollector(object):
             num_steps,
             discard_incomplete_paths,
             exploration_kwargs={},
-            algo='sac'
+            method=None
     ):
         paths = []
         num_steps_collected = 0
@@ -52,13 +51,12 @@ class MdpPathCollector(object):
                 max_path_length,
                 num_steps - num_steps_collected,
             )
-
             path = rollout(
                 self._env,
                 policy,
                 max_path_length=max_path_length_this_loop,
                 exploration_kwargs=exploration_kwargs,
-                algo=algo
+                method=method
             )
             path_len = len(path['actions'])
             if (
@@ -98,8 +96,6 @@ class MdpPathCollector(object):
         ))
         return stats
 
-
-
 @ray.remote(num_cpus=1)
 class RemoteMdpPathCollector(MdpPathCollector):
 
@@ -126,7 +122,6 @@ class RemoteMdpPathCollector(MdpPathCollector):
                                 max_path_length,
                                 num_steps,
                                 discard_incomplete_paths,
-
                                 deterministic_pol,
                                 pol_state_dict):
 
@@ -134,11 +129,10 @@ class RemoteMdpPathCollector(MdpPathCollector):
             policy = self._policy_producer(deterministic=True)
             policy.stochastic_policy.load_state_dict(pol_state_dict)
         else:
-            from collections import OrderedDict
             policy = self._policy_producer()
             policy.load_state_dict(pol_state_dict)
 
-        self.collect_new_paths(policy, max_path_length, num_steps, discard_incomplete_paths)
+        self.collect_new_paths(policy, max_path_length, num_steps, discard_incomplete_paths, method=None)
 
 
 def rollout(
@@ -148,7 +142,7 @@ def rollout(
         render=False,
         render_kwargs=None,
         exploration_kwargs={},
-        algo='sac'
+        method=None
 ):
     """
     The following value for the following keys will be a 2D array, with the
@@ -179,25 +173,19 @@ def rollout(
     if render:
         env.render(**render_kwargs)
     while path_length < max_path_length:
-
-        # if not optimistic_exploration:
-        #     a, agent_info = agent.get_action(o)
-        # else:
-        #     a, agent_info = get_optimistic_exploration_action(
-        #         o, **optimistic_exploration_kwargs)
-        if algo=='sac':
+        if method is None or method=='sac' or method=='td3':
             a, agent_info = agent.get_action(o)
-        elif algo=='oac':
+        elif method=='oac':
             a, agent_info = get_optimistic_exploration_action(
                         o, **exploration_kwargs)
-        elif algo=='gac_bothq':
+        elif method=='gac_bothq':
             a, agent_info = get_bothq_exploration_action(o, **exploration_kwargs)
-        elif algo=='gac_oneq':
+        elif method=='gac_oneq':
             a, agent_info = get_oneq_exploration_action(o, **exploration_kwargs)
-        elif algo=='gac':
+        elif method=='goac':
+            a, agent_info = get_greedy_oac_exploration_action(o, **exploration_kwargs)
+        elif method=='gac':
             a, agent_info = get_greedy_exploration_action(o, **exploration_kwargs)
-        elif algo=='gac_uniform':
-            a, agent_info = get_greedy_uniform_exploration_action(o, **exploration_kwargs)
 
         next_o, r, d, env_info = env.step(a)
         observations.append(o)

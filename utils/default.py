@@ -1,8 +1,6 @@
 import os.path
 import os.path as osp
 import argparse
-import torch as th
-import numpy as np
 
 variant = dict(
     layer_size=256,
@@ -41,6 +39,9 @@ def get_cmd_args():
     parser.add_argument('--no_aet', default=True, action='store_false')
     parser.add_argument('--task', type=str, default='performence')
     parser.add_argument('--sample_size', type=int, default=32)
+    parser.add_argument('--sample_range', type=int, default=7, help='sample range')
+    parser.add_argument('--beta', type=float, default=1.0, help='beta t')
+    parser.add_argument('--log_model', default=False, action='store_true', help='beta t')
 
     # Training param
     parser.add_argument('--num_expl_steps_per_train_loop',

@@ -30,9 +30,7 @@ class SACTrainer(object):
             target_update_period=1,
 
             use_automatic_entropy_tuning=True,
-            add_entopy_to_reward=True,
-            two_Qf=True,
-
+            add_baseline=False,
             target_entropy=None,
     ):
         super().__init__()
@@ -41,8 +39,7 @@ class SACTrainer(object):
         The class state which should not mutate
         """
         self.use_automatic_entropy_tuning = use_automatic_entropy_tuning
-        self.add_entopy_to_reward = add_entopy_to_reward
-        self.two_Qf = two_Qf
+        self.add_baseline = add_baseline
         if self.use_automatic_entropy_tuning:
             if target_entropy:
                 self.target_entropy = target_entropy
@@ -120,12 +117,13 @@ class SACTrainer(object):
             alpha = self.log_alpha.exp()
         else:
             alpha_loss = 0
-            alpha = 0
+            alpha = 1
 
         q_new_actions = torch.min(
             self.qf1(obs, new_obs_actions),
             self.qf2(obs, new_obs_actions),
         )
+
         policy_loss = (alpha * log_pi - q_new_actions).mean()
 
         """
@@ -183,7 +181,7 @@ class SACTrainer(object):
             Eval should set this to None.
             This way, these statistics are only computed for one batch.
             """
-            policy_loss = (log_pi - q_new_actions).mean()
+            # policy_loss = (log_pi - q_new_actions).mean()
 
             self.eval_statistics['QF1 Loss'] = np.mean(ptu.get_numpy(qf1_loss))
             self.eval_statistics['QF2 Loss'] = np.mean(ptu.get_numpy(qf2_loss))
@@ -214,6 +212,11 @@ class SACTrainer(object):
                 'Policy log std',
                 ptu.get_numpy(policy_log_std),
             ))
+            # self.eval_statistics.update(create_stats_ordered_dict(
+            #     'kl estimate',
+            #     ptu.get_numpy(kl_estimate),
+            # ))
+
             if self.use_automatic_entropy_tuning:
                 self.eval_statistics['Alpha'] = alpha.item()
                 self.eval_statistics['Alpha Loss'] = alpha_loss.item()

@@ -119,7 +119,8 @@ class ReplayBuffer(object):
 
     def get_diagnostics(self):
         return OrderedDict([
-            ('size', self._size)
+            ('size', self._size),
+            ('Reward Mean', self._rewards.sum()/self._size)
         ])
 
     def end_epoch(self, epoch):

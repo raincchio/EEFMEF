@@ -1,10 +1,11 @@
+from torch.distributions import Uniform
 import torch
 import utils.pytorch_util as ptu
 from model.policies import TanhNormal
 import math
 
 
-def get_oneq_exploration_action(ob_np, policy=None, qfs=None):
+def get_greedy_oac_exploration_action(ob_np, policy=None, qfs=None, sample_size=32, sample_range=1, batch=None):
 
     assert ob_np.ndim == 1
 
@@ -59,25 +60,33 @@ def get_oneq_exploration_action(ob_np, policy=None, qfs=None):
     # Obtain the change in mu
     mu_C = math.sqrt(2.0 * delta) * torch.mul(Sigma_T, grad) / denom
 
-
     mu_E = pre_tanh_mu_T + mu_C
 
-    # Construct the tanh normal distribution and sample the exploratory action from it
-    assert mu_E.shape == std.shape
+    begin = mu_E-sample_range*std
+    end = mu_E+sample_range*std
+    actions = torch.tanh(Uniform(begin, end).sample([sample_size]))
 
-    dist = TanhNormal(mu_E, std)
+    args =[ob.reshape(1,-1).expand(sample_size,len(ob)), actions]
+    # args = list(torch.unsqueeze(i, dim=0) for i in (ob, actions[0]))
+    Q1 = qfs[0](*args)
+    Q2 = qfs[1](*args)
 
-    ac = dist.sample()
+    Greedy_Q = torch.max(Q1,Q2).squeeze()
+    Greedy_Q = Greedy_Q*batch
+    wise_minus = Greedy_Q-Greedy_Q.max()
+    log_sum = wise_minus.exp().sum().log()
+    # input_tensor = Greedy_Q.exp() + 1e-8
+    prob = (wise_minus - log_sum).exp()
 
-    ac_np = ptu.get_numpy(ac)
-    args_new = list(torch.unsqueeze(i, dim=0) for i in (ob, ac))
-    Q1_new = qfs[0](*args_new)
-    Q2_new = qfs[1](*args_new)
+    index_ac = prob.multinomial(1).item()
 
-    if Q2_new < Q2 and Q1_new < Q1:
-        dist = TanhNormal(pre_tanh_mu_T, std)
+    max_q_ac = actions[index_ac]
 
-        ac = dist.sample()
+    # mean_ac = torch.tanh(pre_tanh_mu_T)
 
-        ac_np = ptu.get_numpy(ac)
+    ac_np = ptu.get_numpy(max_q_ac)
+    # print(max(max_q_ac), min(max_q_ac), max(mean_ac), min(mean_ac) )
+    # print(max_q_ac- mean_ac)
+
     return ac_np, {}
+

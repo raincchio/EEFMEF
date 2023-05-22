@@ -1,8 +1,7 @@
 import torch
 import utils.pytorch_util as ptu
-from trainer.policies import TanhNormal
+from model.policies import TanhNormal
 import math
-import numpy as np
 
 
 def get_bothq_exploration_action(ob_np, policy=None, qfs=None, hyper_params=None):

@@ -120,6 +120,13 @@ def tensor(*args, torch_device=None, **kwargs):
 def normal(*args, **kwargs):
     return torch.normal(*args, **kwargs).to(device)
 
+def save_model(trainer, seed, epoch):
+    path = '/home/chenxing/experiments/model/seed_'+str(seed)+'-epoch_'+str(epoch)+'.ml'
+    model_dict = dict(policy_state_dict=trainer.policy.state_dict(),
+                      qf1_state_dict=trainer.qf1.state_dict(),
+                      qf2_state_dict=trainer.qf2.state_dict()
+                      )
+    torch.save(model_dict, path)
 
 """
 CPU wrappers

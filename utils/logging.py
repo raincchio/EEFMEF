@@ -84,10 +84,6 @@ class Logger(object):
         self._tabular_fds = {}
         self._tabular_header_written = set()
 
-        self._snapshot_dir = None
-        self._snapshot_mode = 'all'
-        self._snapshot_gap = 1
-
         self._log_tabular_only = False
         self._header_printed = False
         self.table_printer = TerminalTablePrinter()
@@ -131,24 +127,6 @@ class Logger(object):
             self._tabular_header_written.remove(self._tabular_fds[file_name])
         self._remove_output(
             file_name, self._tabular_outputs, self._tabular_fds)
-
-    def set_snapshot_dir(self, dir_name):
-        self._snapshot_dir = dir_name
-
-    def get_snapshot_dir(self, ):
-        return self._snapshot_dir
-
-    def get_snapshot_mode(self, ):
-        return self._snapshot_mode
-
-    def set_snapshot_mode(self, mode):
-        self._snapshot_mode = mode
-
-    def get_snapshot_gap(self, ):
-        return self._snapshot_gap
-
-    def set_snapshot_gap(self, gap):
-        self._snapshot_gap = gap
 
     def set_log_tabular_only(self, log_tabular_only):
         self._log_tabular_only = log_tabular_only
@@ -279,45 +257,6 @@ class Logger(object):
     def pop_prefix(self, ):
         del self._prefixes[-1]
         self._prefix_str = ''.join(self._prefixes)
-
-    def save_itr_params(self, itr, params):
-        if self._snapshot_dir:
-            if self._snapshot_mode == 'all':
-                file_name = osp.join(self._snapshot_dir,
-                                     'itr_%d.zip_pkl' % itr)
-                pickle.dump(params, gzip.open(file_name, "wb"))
-            elif self._snapshot_mode == 'last':
-                # override previous params
-                file_name = osp.join(self._snapshot_dir, 'params.zip_pkl')
-                pickle.dump(params, gzip.open(file_name, "wb"))
-            elif self._snapshot_mode == "gap":
-                if itr % self._snapshot_gap == 0:
-                    file_name = osp.join(
-                        self._snapshot_dir, 'itr_%d.zip_pkl' % itr)
-                    pickle.dump(params, gzip.open(file_name, "wb"))
-
-                    # Also save as a genericly named file
-                    # to make loading easier
-                    file_name = osp.join(self._snapshot_dir, 'params.zip_pkl')
-                    pickle.dump(params, gzip.open(file_name, "wb"))
-
-            # Save the params every snapshot_gap and override previously saved result
-            elif self._snapshot_mode == "last_every_gap":
-                if itr % self._snapshot_gap == 0:
-                    file_name = osp.join(self._snapshot_dir, 'params.zip_pkl')
-                    pickle.dump(params, gzip.open(file_name, "wb"))
-
-            elif self._snapshot_mode == "gap_and_last":
-                if itr % self._snapshot_gap == 0:
-                    file_name = osp.join(
-                        self._snapshot_dir, 'itr_%d.zip_pkl' % itr)
-                    pickle.dump(params, gzip.open(file_name, "wb"))
-                file_name = osp.join(self._snapshot_dir, 'params.zip_pkl')
-                pickle.dump(params, gzip.open(file_name, "wb"))
-            elif self._snapshot_mode == 'none':
-                pass
-            else:
-                raise NotImplementedError
 
 
 logger = Logger()
