@@ -32,14 +32,14 @@ variant = dict(
 def get_cmd_args():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', type=str, default='oac')
+    parser.add_argument('--algo', type=str, default='sac')
     parser.add_argument('--seed', type=int, default=0, help='Random seed')
-    parser.add_argument('--domain', type=str, default='invertedpendulum')
+    parser.add_argument('--domain', type=str, default='swimmer')
     parser.add_argument('--use_gpu', default=False, action='store_true')
     parser.add_argument('--no_aet', default=True, action='store_false')
-    parser.add_argument('--task', type=str, default='performence')
+    parser.add_argument('--task', type=str, default='tmp')
     parser.add_argument('--sample_size', type=int, default=32)
-    parser.add_argument('--sample_range', type=int, default=7, help='sample range')
+    parser.add_argument('--sample_range', type=float, default=7, help='sample range')
     parser.add_argument('--beta', type=float, default=1.0, help='beta t')
     parser.add_argument('--log_model', default=False, action='store_true', help='beta t')
 

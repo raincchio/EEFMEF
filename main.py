@@ -20,7 +20,7 @@ ray.init(
     # The amount of memory (in bytes)
     num_cpus=1,
     object_store_memory=int(5e8), # 1g
-    redis_max_memory=int(5e8) # 1g
+    _redis_max_memory=int(5e8) # 1g
 )
 
 
@@ -51,6 +51,8 @@ if __name__ == "__main__":
     expl_env = env_producer(domain, seed)
     obs_dim = expl_env.observation_space.low.size
     action_dim = expl_env.action_space.low.size
+    # print(obs_dim, action_dim)
+    # exit(0)
 
     # Get producer function for policy and value functions
 

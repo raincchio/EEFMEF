@@ -171,12 +171,13 @@ class TanhGaussianPolicy(Mlp):
         pre_tanh_value = None
         if deterministic:
             action = torch.tanh(mean)
-            tanh_normal = TanhNormal(mean, std)
-            log_prob = tanh_normal.log_prob(
-                action,
-                pre_tanh_value=mean
-            )
-            log_prob = log_prob.sum(dim=1, keepdim=True)
+            if return_log_prob:
+                tanh_normal = TanhNormal(mean, std)
+                log_prob = tanh_normal.log_prob(
+                    action,
+                    pre_tanh_value=mean
+                )
+                log_prob = log_prob.sum(dim=1, keepdim=True)
         else:
             tanh_normal = TanhNormal(mean, std)
             if return_log_prob:

@@ -10,10 +10,25 @@ algos_of_domain = {}
 algo_domian_paths = {}
 task = "tmp"
 paths = [
-    "/home/chenxing/experiments/test_reward",
+    "/home/chenxing/experiments/test",
          # "/home/chenxing/experiments/test",
 ]
-
+rc_fonts = {
+    'xtick.direction': 'in',
+    'ytick.direction': 'in',
+    'xtick.labelsize':12,
+    'ytick.labelsize':12,
+    "font.family": "times",
+    "font.size": 12,
+    'axes.titlesize':12,
+    "legend.fontsize":12,
+    "axes.spines.right": False,
+    "axes.spines.top": False,
+    # 'figure.figsize': (8, 3.5),
+    # 'figure.figsize': (8.5, 11),
+}
+plt.rcParams.update(rc_fonts)
+plt.rc('axes', unicode_minus=False)
 for path in paths:
     algos = os.listdir(path)
     for algo in algos:
@@ -41,7 +56,7 @@ keys = {1:'exploration/Average Returns',
         2:'remote_evaluation/Average Returns',
 }
 
-fig, axs = plt.subplots(1,2)
+fig, axs = plt.subplots(1,2, figsize=(7.15,2.4))
 env = f'{domain}-v2'
 
 for algo, ax in zip(algos_of_domain[domain], axs):
@@ -54,7 +69,12 @@ for algo, ax in zip(algos_of_domain[domain], axs):
         std = np.std(average_value, axis=1)
         x_vals = np.arange(len(mean))
 
-        ax.plot(x_vals, mean, label= key, color=COLORS[idx])
+        key_idct= {'exploration/Average Returns':"exploration",
+                   'remote_evaluation/Average Returns':"evaluation"
+
+        }
+
+        ax.plot(x_vals, mean, label= key_idct[key], color=COLORS[idx])
         ax.fill_between(x_vals, mean - std, mean + std, color=COLORS[idx], alpha=0.1)
 
 
@@ -73,6 +93,6 @@ for algo, ax in zip(algos_of_domain[domain], axs):
 
 
 plt.tight_layout()
-plt.show()
-# fig.savefig('./plotting/pdf/'+task+'.pdf', bbox_inches='tight', dpi=300, backend='pdf')
+# plt.show()
+fig.savefig('./'+task+'.pdf', bbox_inches='tight', dpi=300, backend='pdf')
 print('./plotting/pdf/'+task+'.pdf ','plot finished!')

@@ -11,7 +11,7 @@ from utils.eval_util import create_stats_ordered_dict
 from typing import Iterable
 
 
-class GACTrainer(object):
+class BACCTrainer(object):
     def __init__(
             self,
             policy_producer,

@@ -2,12 +2,27 @@ from plotting.util.base import *
 
 DOMAINS = ['humanoid','ant', 'halfcheetah', 'walker2d', 'hopper', 'swimmer']
 # DOMAINS = ['halfcheetah']
-
+rc_fonts = {
+    'xtick.direction': 'in',
+    'ytick.direction': 'in',
+    'xtick.labelsize':10,
+    'ytick.labelsize':10,
+    "font.family": "times",
+    "font.size": 10,
+    'axes.titlesize':10,
+    "legend.fontsize":10,
+    "axes.spines.right": False,
+    "axes.spines.top": False,
+    'figure.figsize': (7.15, 4),
+    # 'figure.figsize': (8.5, 11),
+}
+plt.rcParams.update(rc_fonts)
+plt.rc('axes', unicode_minus=False)
 algos_of_domain = {}
 algo_domian_paths = {}
 
 paths = [
-    "/home/chenxing/experiments/res/range",
+    "/home/chenxing/experiments/res/size",
     # "/home/chenxing/experiments/gac_exp/ablation_range",
 ]
 for path in paths:
@@ -64,7 +79,7 @@ for domain, ax in zip(DOMAINS, axs):
         """
 
     ax.set_title(env)
-    ax.set_ylabel(key)
+    ax.set_ylabel('average return')
 
     xticks = np.arange(0, domain_to_epoch(
         domain) + 1, get_tick_space(domain))
@@ -73,10 +88,15 @@ for domain, ax in zip(DOMAINS, axs):
 
     ax.set_xlabel('million steps')
     ax.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
-    # if domain=='swimmer':
-    ax.legend()
+    if domain=='swimmer':
+        handles, labels = ax.get_legend_handles_labels()
+        wanted_labels = ['ab_size10_range7_beta1', 'ab_size100_range7_beta1', 'ab_size1000_range7_beta1']
+        wanted_handles = [handles[labels.index(item)] for item in wanted_labels]
+        verbose_labels = [r'$s_n=10$', r'$s_n=100$', r'$s_n=1000$']
+        ax.legend(wanted_handles, verbose_labels, edgecolor='None', facecolor='None')
+        # ax.legend( edgecolor='None', facecolor='None')
 
 plt.tight_layout()
 # plt.show()
-# plt.savefig('./pdf/test.pdf', bbox_inches='tight', dpi=300, backend='pdf')
+plt.savefig('./pdf/test.pdf', bbox_inches='tight', dpi=300, backend='pdf')
 # print('./plotting/pdf/'+task+'.pdf ','plot finished!')

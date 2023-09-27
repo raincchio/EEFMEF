@@ -1,8 +1,10 @@
 import os
 
+import gym
 from gym import Env
 from gym.spaces import Box, Discrete, Tuple
 import numpy as np
+import roboschool
 
 
 def get_dim(space):
@@ -127,7 +129,8 @@ class NormalizedBoxEnv(ProxyEnv):
 def domain_to_env(name):
 
     from gym.envs.mujoco import HalfCheetahEnv, HumanoidEnv, \
-        HopperEnv, AntEnv, Walker2dEnv, SwimmerEnv,InvertedPendulumEnv
+        HopperEnv, AntEnv, Walker2dEnv, SwimmerEnv,HumanoidStandupEnv
+    # from gym.envs.
 
     return {
         'humanoid': HumanoidEnv,
@@ -136,25 +139,31 @@ def domain_to_env(name):
         'ant': AntEnv,
         'walker2d': Walker2dEnv,
         'swimmer': SwimmerEnv,
-        "pendulum":InvertedPendulumEnv
+        "standup":HumanoidStandupEnv
     }[name]
 
 
 def domain_to_epoch(name):
-
-    return {
-        'humanoid': 3000,
-        'halfcheetah': 3000,
-        'hopper': 3000,
-        'ant': 3000,
-        'walker2d': 3000,
-        'swimmer': 3000,
-        'pendulum': 30,
-    }[name]
+    # return 3000
+    try:
+        return {
+            'humanoid': 3000,
+            'halfcheetah': 3000,
+            'hopper': 3000,
+            'ant': 3000,
+            'walker2d': 3000,
+            'swimmer': 3000,
+            'standup': 1000,
+        }[name]
+    except:
+        return 1000
 
 
 def env_producer(domain, seed):
-    env = domain_to_env(domain)()
+    if 'Robo' in domain:
+        env = gym.make(domain)
+    else:
+        env = domain_to_env(domain)()
     env.seed(seed)
     env = NormalizedBoxEnv(env)
     return env

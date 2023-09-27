@@ -2,8 +2,11 @@ from model.networks import FlattenMlp
 from model.policies import TanhGaussianPolicy, MakeDeterministic
 
 from algo.sac import SACTrainer
-from algo.gac import GACTrainer
+from algo.bacc import BACCTrainer
 from algo.td3 import TD3Trainer
+from algo.sac_no_min import SACNoMin
+from algo.tripleQ import TripleQ
+from algo.sac_loss import SAClossTrainer
 
 
 def get_policy_producer(obs_dim, action_dim, hidden_sizes):
@@ -32,9 +35,13 @@ def get_q_producer(obs_dim, action_dim, hidden_sizes):
 
 
 def get_trainer(algo):
-    if algo.startswith('gac'):
-        return GACTrainer
-    if algo.startswith('td3'):
-        return TD3Trainer
-    if algo.startswith('sac'):
-        return SACTrainer
+
+    return {'sac': SACTrainer,
+            'td3': TD3Trainer,
+            'oac': SACTrainer,
+            'gac_random': SACTrainer,
+            'sac_no_min': SACNoMin,
+            'tripleq': TripleQ,
+            'bacc': BACCTrainer,
+            'sac_loss': SAClossTrainer
+            }[algo]

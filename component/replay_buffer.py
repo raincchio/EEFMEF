@@ -81,6 +81,16 @@ class ReplayBuffer(object):
                 env_info=env_info,
             )
 
+    def _add_path(self, obs, action,reward,next_obs,terminal,agent_info,env_info):
+        self.add_sample(
+            observation=obs,
+            action=action,
+            reward=reward,
+            next_observation=next_obs,
+            terminal=terminal,
+            agent_info=agent_info,
+            env_info=env_info,
+        )
     def add_paths(self, paths):
         for path in paths:
             self.add_path(path)

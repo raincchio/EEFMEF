@@ -2,6 +2,7 @@ import abc
 import time
 from collections import OrderedDict
 
+import numpy as np
 import torch
 torch.set_printoptions(profile='full')
 from utils.logging import logger
@@ -10,7 +11,7 @@ import utils.eval_util as eval_util
 import gtimer as gt
 from component.replay_buffer import ReplayBuffer
 from component.path_collector import MdpPathCollector, RemoteMdpPathCollector
-from tqdm import trange
+from exploration.greedy import get_greedy_exploration_action
 from utils.pytorch_util import state_dict_cpu, save_model
 import ray
 
@@ -99,67 +100,55 @@ class Framework(metaclass=abc.ABCMeta):
             self.replay_buffer.add_paths(expl_paths)
             self.expl_data_collector.end_epoch(-1)
         # exit()
-        for epoch in gt.timed_for(
-                trange(self._start_epoch, self.num_epochs),
-                save_itrs=True,
-        ):
+        env = self.expl_data_collector._env
+        obs = env.reset()
+        for step in range(int(3e6)):
 
-            pol_state_dict = state_dict_cpu(self.trainer.policy)
+            action, agent_info = get_greedy_exploration_action(obs, policy=self.trainer.policy,
+                                                               qfs=[self.trainer.qf1, self.trainer.qf2],
+                                                               sample_size=self.sample_size,
+                                                               sample_range=self.sample_range,
+                                                               beta=(step/1000.0+1)*self.beta)
 
-            # ray.put("pol_state_dict")
+            next_obs, reward, terminal, env_info = env.step(action)
 
-            remote_eval_obj_id = self.remote_eval_data_collector.async_collect_new_paths.remote(
-                self.max_path_length,
-                self.num_eval_steps_per_epoch,
-                discard_incomplete_paths=True,
-                deterministic_pol=True,
-                pol_state_dict=pol_state_dict)
+            if terminal:
+                env.reset()
+            obs = next_obs
 
-            for _ in range(self.num_train_loops_per_epoch):
+            self.replay_buffer._add_path(obs[None], action[None],reward[None],next_obs[None],np.array([int(terminal)])[None],agent_info,env_info)
 
-                new_expl_paths = self.expl_data_collector.collect_new_paths(
-                    self.trainer.policy,
-                    self.max_path_length,
-                    self.num_expl_steps_per_train_loop,
-                    discard_incomplete_paths=False,
-                    exploration_kwargs=dict(
-                        policy=self.trainer.policy,
-                        qfs=[self.trainer.qf1, self.trainer.qf2],
-                        sample_size=self.sample_size,
-                        sample_range=self.sample_range,
-                        beta=(epoch+1)*self.beta
-                    ),
-                    method=self.algo
-                )
 
-                self.replay_buffer.add_paths(new_expl_paths)
-                gt.stamp('before_train')
-                for _ in range(self.num_trains_per_train_loop):
-                    train_data = self.replay_buffer.random_batch(
-                        self.batch_size)
-                    self.trainer.train(train_data)
-                gt.stamp('after_train')
+            train_data = self.replay_buffer.random_batch(
+                self.batch_size)
+            self.trainer.train(train_data)
+
 
             # Wait for eval to finish
-            ray.get([remote_eval_obj_id])
+            if step % 1000 == 0:
+                pol_state_dict = state_dict_cpu(self.trainer.policy)
+                remote_eval_obj_id = self.remote_eval_data_collector.async_collect_new_paths.remote(
+                    self.max_path_length,
+                    self.num_eval_steps_per_epoch,
+                    discard_incomplete_paths=True,
+                    deterministic_pol=True,
+                    pol_state_dict=pol_state_dict)
+                ray.get([remote_eval_obj_id])
+                self._end_epoch(step)
 
-            self._end_epoch(epoch)
+    def _end_epoch(self, step):
 
-    def _end_epoch(self, epoch):
-        self._log_stats(epoch)
+        self._log_stats(step)
 
-        self.expl_data_collector.end_epoch(epoch)
-        ray.get([self.remote_eval_data_collector.end_epoch.remote(epoch)])
+        self.expl_data_collector.end_epoch(step)
+        ray.get([self.remote_eval_data_collector.end_epoch.remote(step)])
 
-        self.replay_buffer.end_epoch(epoch)
-        self.trainer.end_epoch(epoch)
-        if self.log_model and (epoch+1) %500==0:
-            save_model(self.trainer,self.seed, epoch)
+        self.replay_buffer.end_epoch(step)
+        self.trainer.end_epoch(step)
 
-        logger.record_dict(_get_epoch_timings())
-        logger.record_tabular('Epoch', epoch)
+        logger.record_tabular('Epoch', step)
 
-        write_header = True if epoch == 0 else False
+        write_header = True if step == 0 else False
         logger.dump_tabular(with_prefix=False, with_timestamp=False,
                             write_header=write_header)
 
@@ -183,15 +172,15 @@ class Framework(metaclass=abc.ABCMeta):
         """
         Exploration
         """
-        logger.record_dict(
-            self.expl_data_collector.get_diagnostics(),
-            prefix='exploration/'
-        )
-        expl_paths = self.expl_data_collector.get_epoch_paths()
-        logger.record_dict(
-            eval_util.get_generic_path_information(expl_paths),
-            prefix="exploration/",
-        )
+        # logger.record_dict(
+        #     self.expl_data_collector.get_diagnostics(),
+        #     prefix='exploration/'
+        # )
+        # expl_paths = self.expl_data_collector.get_epoch_paths()
+        # logger.record_dict(
+        #     eval_util.get_generic_path_information(expl_paths),
+        #     prefix="exploration/",
+        # )
         """
         Remote Evaluation
         """

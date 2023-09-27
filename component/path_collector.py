@@ -6,12 +6,11 @@ from utils.env_utils import env_producer
 from utils.eval_util import create_stats_ordered_dict
 # from utils.rng import get_global_pkg_rng_state, set_global_pkg_rng_state
 import numpy as np
+import time
 
 from exploration.optimistic import get_optimistic_exploration_action
-from exploration.greedy_oac import get_greedy_oac_exploration_action
-from exploration.greedy_bothq import get_bothq_exploration_action
-from exploration.greedy_oneq import get_oneq_exploration_action
 from exploration.greedy import get_greedy_exploration_action
+from exploration.random import get_random_exploration_action
 
 class MdpPathCollector(object):
     def __init__(
@@ -51,6 +50,7 @@ class MdpPathCollector(object):
                 max_path_length,
                 num_steps - num_steps_collected,
             )
+
             path = rollout(
                 self._env,
                 policy,
@@ -59,6 +59,7 @@ class MdpPathCollector(object):
                 method=method
             )
             path_len = len(path['actions'])
+
             if (
                     # incomplete path
                     path_len != max_path_length and
@@ -76,6 +77,51 @@ class MdpPathCollector(object):
         self._num_steps_total += num_steps_collected
         self._epoch_paths.extend(paths)
         return paths
+
+    def collect_step_paths(
+            self,
+            policy,
+            max_path_length,
+            num_steps,
+            discard_incomplete_paths,
+            exploration_kwargs={},
+            method=None
+    ):
+        paths = []
+        num_steps_collected = 0
+        while num_steps_collected < num_steps:
+            max_path_length_this_loop = min(  # Do not go over num_steps
+                max_path_length,
+                num_steps - num_steps_collected,
+            )
+
+            path = rollout(
+                self._env,
+                policy,
+                max_path_length=max_path_length_this_loop,
+                exploration_kwargs=exploration_kwargs,
+                method=method
+            )
+            path_len = len(path['actions'])
+
+            if (
+                    # incomplete path
+                    path_len != max_path_length and
+
+                    # that did not end in a terminal state
+                    not path['terminals'][-1] and
+
+                    # and we should discard such path
+                    discard_incomplete_paths
+            ):
+                break
+            num_steps_collected += path_len
+            paths.append(path)
+        self._num_paths_total += len(paths)
+        self._num_steps_total += num_steps_collected
+        self._epoch_paths.extend(paths)
+        return paths
+
 
     def get_epoch_paths(self):
         return self._epoch_paths
@@ -172,20 +218,20 @@ def rollout(
     path_length = 0
     if render:
         env.render(**render_kwargs)
+
     while path_length < max_path_length:
-        if method is None or method=='sac' or method=='td3':
-            a, agent_info = agent.get_action(o)
-        elif method=='oac':
+
+        if method=='oac':
             a, agent_info = get_optimistic_exploration_action(
                         o, **exploration_kwargs)
-        elif method=='gac_bothq':
-            a, agent_info = get_bothq_exploration_action(o, **exploration_kwargs)
-        elif method=='gac_oneq':
-            a, agent_info = get_oneq_exploration_action(o, **exploration_kwargs)
-        elif method=='goac':
-            a, agent_info = get_greedy_oac_exploration_action(o, **exploration_kwargs)
+        elif method=='gac_random':
+            a, agent_info = get_random_exploration_action(o, **exploration_kwargs)
         elif method=='gac':
             a, agent_info = get_greedy_exploration_action(o, **exploration_kwargs)
+        elif method=='tripleq':
+            a, agent_info = get_greedy_exploration_action(o, **exploration_kwargs)
+        else:
+            a, agent_info = agent.get_action(o)
 
         next_o, r, d, env_info = env.step(a)
         observations.append(o)
